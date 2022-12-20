@@ -27,23 +27,24 @@ public:
             return 0;
         return 1;
     }
-    void fill_design(wchar_t character = PIXEL_SOLID1)
+    void fill_design(wchar_t character = S1)
     {
         this->design.clear();
         for (int r = 0; r < this->height; r++)
             for (int c = 0; c < this->width; c++)
                 this->design += character;
     }
-    void render(wchar_t *Screen, const uint16_t Width, const uint16_t Height, bool AlphaR = 0)
+    void render(CHAR_INFO *Screen, const uint16_t Width, const uint16_t Height, bool AlphaR = 0)
     {
         int x = (int)this->x_pos;
         int y = (int)this->y_pos;
         for (int r = 0; r < this->height; r++)
             for (int c = 0; c < this->width; c++)
             {
-                if (x + c >= Width || x + c < 0 || y + r >= Height || y + r < 0 || (this->design[r * this->width + c] == PIXEL_NONE && AlphaR))
-                    continue;
-                Screen[((y + r) * Width) + c + x] = this->design[r * this->width + c];
+                if (x + c >= Width || x + c < 0 || y + r >= Height || y + r < 0)
+                    if (this->design[r * this->width + c] == S0 && AlphaR)
+                        continue;
+                Screen[((y + r) * Width) + c + x].Char.UnicodeChar = this->design[r * this->width + c];
             }
     }
 };

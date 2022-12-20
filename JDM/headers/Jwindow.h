@@ -1,34 +1,44 @@
 #pragma once
 
 #include "Jinclude.h"
+#include "JkeyBoard.h"
 
 class Window
 {
 protected:
     bool Running;
+
+    std::string WTitle;
     uint16_t ScreenWidth, ScreenHeight;
+
+    HANDLE originalConsole;
     HANDLE hConsole;
+    HANDLE hConsoleI;
     HWND console;
+
     DWORD BytesWritten;
-    float keyPressMS;
-    float keyPressValue;
+    SMALL_RECT screenBufferCorners;
+
+    float keyPressMS = 0.15;
+    float keyPressValue = 0.15;
+    KeyBoard keyboard = KeyBoard();
 
 public:
-    wchar_t *Screen;
+    CHAR_INFO *Screen;
 
 public:
     Window(const char *Title, uint16_t Width, uint16_t Height, uint8_t fontSize = 5)
         : ScreenWidth(Width), ScreenHeight(Height)
     {
-        keyPressValue = 0.15;
-        keyPressMS = keyPressValue;
         Running = true;
-        Screen = new wchar_t[ScreenWidth * ScreenHeight];
-        hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
-        console = GetConsoleWindow();
+        WTitle = Title;
+        screenBufferCorners = {0, 0, 1, 1};
+        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        hConsoleI = GetStdHandle(STD_INPUT_HANDLE);
 
-        SetConsoleTitleA(Title);
-        SetConsoleActiveScreenBuffer(hConsole);
+        SetConsoleWindowInfo(hConsole, TRUE, &screenBufferCorners);
+        assert(SetConsoleScreenBufferSize(hConsole, {(short)Width, (short)Height}));
+        assert(SetConsoleActiveScreenBuffer(hConsole));
 
         CONSOLE_FONT_INFOEX cfi;
         cfi.cbSize = sizeof(cfi);
@@ -37,18 +47,25 @@ public:
         cfi.dwFontSize.Y = fontSize;
         cfi.FontFamily = FF_DONTCARE;
         cfi.FontWeight = FW_NORMAL;
-
         std::wcscpy(cfi.FaceName, L"Lucida Console");
-        SetCurrentConsoleFontEx(hConsole, FALSE, &cfi);
-        ShowScrollBar(console, SB_VERT, 0);
-        BytesWritten = 0;
+        assert(SetCurrentConsoleFontEx(hConsole, FALSE, &cfi));
+
+        ShowScrollBar(GetConsoleWindow(), SB_VERT, 0);
+
+        screenBufferCorners = {0, 0, (short)(Width - 1), (short)(Height - 1)};
+        assert(SetConsoleWindowInfo(hConsole, TRUE, &screenBufferCorners));
+        Screen = new CHAR_INFO[ScreenWidth * ScreenHeight];
     }
-    ~Window() { delete[] Screen; }
-    virtual void onUserUpdate(float ElapseTime) {}
-    virtual void onUserCreate() {}
+    ~Window()
+    {
+
+        delete[] Screen;
+    }
+    virtual void onUserUpdate(float ElapseTime) = 0;
+    virtual void onUserCreate() = 0;
     constexpr uint16_t getw() { return this->ScreenWidth; }
     constexpr uint16_t geth() { return this->ScreenHeight; }
-    void Clear(const int16_t Width = -1, const int16_t Height = -1, const wchar_t Character = PIXEL_NONE);
+    void Clear(const wchar_t Character = S0, short color = (FG_BLACK | BG_BLACK));
 
     void run()
     {
@@ -64,15 +81,19 @@ public:
             float ElapseTime = elapseTime.count();
             onUserUpdate(ElapseTime);
 
-            keyPressMS -= ElapseTime;
-            if (keyPressMS <= 0)
-                handlekeyPress(ElapseTime);
+            keyboard.update();
 
-            WriteConsoleOutputCharacterW(hConsole, Screen, (ScreenWidth * ScreenHeight), {0, 0}, &BytesWritten);
+            wchar_t updater[256];
+            swprintf(updater, 256, L"%s - FPS: %3.2f", WTitle.c_str(), 1.0 / ElapseTime);
+            SetConsoleTitleW(updater);
+            WriteConsoleOutputW(hConsole, Screen, {(short)ScreenWidth, (short)ScreenHeight}, {0, 0}, &screenBufferCorners);
         }
     }
 
-    constexpr bool collide_point(float x1, float y1, int width, int height, const float x, const float y) { return (x1 <= x && x <= x1 + width && y1 <= y && y <= y1 + height); }
+    constexpr bool collide_point(float x1, float y1, int width, int height, const float x, const float y)
+    {
+        return (x1 <= x && x <= x1 + width && y1 <= y && y <= y1 + height);
+    }
     constexpr bool collide_box(float x1, float y1, int width1, int height1,
                                const int width, const int height, const float x, const float y)
     {
@@ -87,103 +108,16 @@ public:
         return 1;
     }
 
-    constexpr bool collide_boxX(float x1, int width1,
-                                const int width, const float x)
-    {
-        if (x1 + width1 < x)
-            return 0;
-        if (x1 > x + width)
-            return 0;
-        return 1;
-    }
-    constexpr bool collide_boxY(float y1, int height1,
-                                const int height, const float y)
-    {
-        if (y1 + height1 < y)
-            return 0;
-        if (y1 > y + height)
-            return 0;
-        return 1;
-    }
+    Color getColor(wchar_t index);
+    void Draw(float x, float y, short Character = S1, short color = (FG_LWHITE | BG_BLACK), bool AlphaR = 0);
+    void DrawString(float x, float y, std::wstring &str, bool AlphaR = 0);
+    void DrawString(float x, float y, wchar_t str[], bool AlphaR = 0);
 
-    void Draw(float x, float y, wchar_t Character = PIXEL_SOLID1, bool AlphaR = 0)
-    {
-        if (!((int)x >= ScreenWidth || (int)x < 0 || (int)y >= ScreenHeight || (int)y < 0 || (Character == PIXEL_NONE && AlphaR)))
-            Screen[(int)y * ScreenWidth + (int)x] = Character;
-    }
-    void DrawString(float x, float y, std::wstring &str, bool AlphaR = 0)
-    {
-        int x_adder = 0, y_adder = 0;
-        for (int i = 0; i < str.size(); i++)
-        {
-            if (str[i] == L'\n')
-            {
-                x_adder = 0;
-                y_adder++;
-                continue;
-            }
-            Draw(x + x_adder, y + y_adder, str[i], AlphaR);
-            x_adder++;
-        }
-    }
-    void DrawString(float x, float y, wchar_t str[], bool AlphaR = 0)
-    {
+    void DrawCString(float x, float y, std::wstring &str, bool AlphaR = 0);
+    void DrawHorizontal(float x, float y, int Width, wchar_t Character = S1, short color = (FG_LWHITE | BG_BLACK), bool AlphaR = 0);
+    void DrawVertical(float x, float y, int Height, wchar_t Character = S1, short color = (FG_LWHITE | BG_BLACK), bool AlphaR = 0);
+    void DrawLine(float x1, float y1, float x2, float y2, short Character = S1, short color = (FG_LWHITE | BG_BLACK), bool AlphaR = 0);
+    void DrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3, wchar_t Character = S1, short color = (FG_LWHITE | BG_BLACK), bool AlphaR = 0);
 
-        int x_adder = 0, y_adder = 0;
-        for (int i = 0; str[i]; i++)
-        {
-            if (str[i] == L'\n')
-            {
-                x_adder = 0;
-                y_adder++;
-                continue;
-            }
-            Draw(x + x_adder, y + y_adder, str[i], AlphaR);
-            x_adder++;
-        }
-    }
-    void DrawHorizontal(float x, float y, int Width, wchar_t Character = PIXEL_SOLID1, bool AlphaR = 0)
-    {
-        for (int i = (int)x; i < Width; i++)
-            Draw(x + i, y, Character, AlphaR);
-    }
-    void DrawVertical(float x, float y, int Height, wchar_t Character = PIXEL_SOLID1, bool AlphaR = 0)
-    {
-        for (int i = (int)y; i < Height; i++)
-            Draw(x, y + i, Character, AlphaR);
-    }
-    void DrawBox(int width, int height, float x, float y, wchar_t Character = PIXEL_SOLID1, bool AlphaR = 0)
-    {
-        for (int i = 0; i < height; i++)
-            for (int j = 0; j < width; j++)
-                Draw(x + j, y + i, Character, AlphaR);
-    }
-
-    void handlekeyPress(float ElapseTime);
-    virtual void keyPressA(float ElapseTime) {}
-    virtual void keyPressB(float ElapseTime) {}
-    virtual void keyPressC(float ElapseTime) {}
-    virtual void keyPressD(float ElapseTime) {}
-    virtual void keyPressE(float ElapseTime) {}
-    virtual void keyPressF(float ElapseTime) {}
-    virtual void keyPressG(float ElapseTime) {}
-    virtual void keyPressH(float ElapseTime) {}
-    virtual void keyPressI(float ElapseTime) {}
-    virtual void keyPressJ(float ElapseTime) {}
-    virtual void keyPressK(float ElapseTime) {}
-    virtual void keyPressL(float ElapseTime) {}
-    virtual void keyPressM(float ElapseTime) {}
-    virtual void keyPressN(float ElapseTime) {}
-    virtual void keyPressO(float ElapseTime) {}
-    virtual void keyPressP(float ElapseTime) {}
-    virtual void keyPressQ(float ElapseTime) {}
-    virtual void keyPressR(float ElapseTime) {}
-    virtual void keyPressS(float ElapseTime) {}
-    virtual void keyPressT(float ElapseTime) {}
-    virtual void keyPressU(float ElapseTime) {}
-    virtual void keyPressV(float ElapseTime) {}
-    virtual void keyPressW(float ElapseTime) {}
-    virtual void keyPressX(float ElapseTime) {}
-    virtual void keyPressY(float ElapseTime) {}
-    virtual void keyPressZ(float ElapseTime) {}
+    void DrawBox(int width, int height, float x, float y, short Character = S1, short color = (FG_LWHITE | BG_BLACK), bool AlphaR = 0);
 };
