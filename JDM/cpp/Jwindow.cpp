@@ -1,58 +1,146 @@
 #include "Jwindow.h"
 
-void Window::Clear(const wchar_t Character, short color)
+Window::Window(JCCHAR *Title, JCSHORT Width, JCSHORT Height, JCSHORT fontSize)
+    : WTitle(Title), ScreenWidth(Width), ScreenHeight(Height)
 {
-    for (int i = 0; i < ScreenHeight; i++)
-        for (int j = 0; j < ScreenWidth; j++)
+    this->originalConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    this->hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    this->hConsoleI = GetStdHandle(STD_INPUT_HANDLE);
+
+    GetConsoleMode(this->hConsoleI, &this->PrevMode);
+    SetConsoleMode(this->hConsoleI, ENABLE_EXTENDED_FLAGS | (this->PrevMode & ~ENABLE_QUICK_EDIT_MODE));
+    SetConsoleWindowSize(this->hConsole, Width, Height, fontSize, fontSize);
+    ShowScrollBar(GetConsoleWindow(), SB_VERT, JFALSE);
+
+    GetConsoleCursorInfo(this->hConsole, &this->CursorInfo);
+    this->CursorInfo.dwSize = 0;
+    this->CursorInfo.bVisible = JFALSE;
+    SetConsoleCursorInfo(this->hConsole, &this->CursorInfo);
+    this->Screen = new CHAR_INFO[Width * Height];
+}
+
+Window::~Window()
+{
+    Clear();
+    SetConsoleWindowSize(this->originalConsole, 120, 50, 6, 10);
+    SetConsoleActiveScreenBuffer(this->originalConsole);
+    WriteConsoleOutputW(this->originalConsole, this->Screen, {this->GetWidth(), this->GetHeight()}, {0, 0}, &this->screenBufferCorners);
+    ShowScrollBar(GetConsoleWindow(), SB_VERT, JTRUE);
+    SetConsoleCursorPosition(this->originalConsole, {0, 0});
+    SetConsoleMode(this->hConsoleI, this->PrevMode);
+
+    this->CursorInfo.bVisible = JTRUE;
+    SetConsoleCursorInfo(this->hConsole, &this->CursorInfo);
+    delete[] this->Screen;
+}
+
+JVOID Window::SetConsoleWindowSize(HANDLE console, JCSHORT Width, JCSHORT Height, JCSHORT FontWidth, JCSHORT FontHeight)
+{
+    this->screenBufferCorners = {0, 0, 1, 1};
+    SetConsoleWindowInfo(console, JTRUE, &this->screenBufferCorners);
+    assert(SetConsoleScreenBufferSize(console, {Width, Height}));
+    assert(SetConsoleActiveScreenBuffer(console));
+
+    CONSOLE_FONT_INFOEX cfi;
+
+    cfi.cbSize = sizeof(cfi);
+    cfi.nFont = 0;
+    cfi.dwFontSize.X = FontWidth;
+    cfi.dwFontSize.Y = FontHeight;
+    cfi.FontFamily = FF_DONTCARE;
+    cfi.FontWeight = FW_NORMAL;
+    std::wcscpy(cfi.FaceName, L"Lucida Console");
+    assert(SetCurrentConsoleFontEx(console, JFALSE, &cfi));
+
+    this->screenBufferCorners = {0, 0, (short)(Width - 1), (short)(Height - 1)};
+    assert(SetConsoleWindowInfo(console, JTRUE, &this->screenBufferCorners));
+}
+
+JVOID Window::Start()
+{
+    assert(this->onUserCreate());
+    srand(std::time(0));
+    this->timePoint1 = std::chrono::system_clock::now();
+    this->timePoint2 = std::chrono::system_clock::now();
+    while (this->Running)
+        this->Running = this->gameLoop();
+}
+
+JBOOL Window::gameLoop()
+{
+    this->timePoint2 = std::chrono::system_clock::now();
+    std::chrono::duration<JFLOAT> elapseTime = this->timePoint2 - this->timePoint1;
+    this->timePoint1 = this->timePoint2;
+
+    this->ElapseTime = elapseTime.count();
+    if (this->onUserUpdate(this->ElapseTime))
+    {
+        this->keyboard.update();
+        if (keyboard.Keys[Keys::J_ESC].isPressed)
+            return JFALSE;
+
+        JWCHAR updater[256];
+        swprintf(updater, 256, L"%s - FPS: %3.2f", this->WTitle.c_str(), 1.0 / this->ElapseTime);
+        SetConsoleTitleW(updater);
+        WriteConsoleOutputW(this->hConsole, this->Screen, {this->GetWidth(), this->GetHeight()}, {0, 0}, &this->screenBufferCorners);
+        return JTRUE;
+    }
+    return JFALSE;
+}
+
+JVOID Window::Clear(JCSHORT Character, JCSHORT Color)
+{
+    for (JSHORT i = 0; i < this->GetHeight(); i++)
+        for (JSHORT j = 0; j < this->GetWidth(); j++)
         {
-            Screen[i * ScreenWidth + j].Char.UnicodeChar = Character;
-            Screen[i * ScreenWidth + j].Attributes = color;
+            this->Screen[i * this->GetWidth() + j].Char.UnicodeChar = Character;
+            this->Screen[i * this->GetWidth() + j].Attributes = Color;
         }
 }
 
-Color Window::getColor(wchar_t index)
+Color Window::getColor(JCSHORT Index)
 {
-    switch (index)
+    switch (Index)
     {
-    case L'1':
+    case L'0':
         return FG_BLACK;
-    case L'2':
+    case L'1':
         return FG_BLUE;
-    case L'3':
+    case L'2':
         return FG_GREEN;
-    case L'4':
+    case L'3':
         return FG_AQUA;
-    case L'5':
+    case L'4':
         return FG_RED;
-    case L'6':
+    case L'5':
         return FG_PURPLE;
-    case L'7':
+    case L'6':
         return FG_YELLOW;
-    case L'8':
+    case L'7':
         return FG_WHITE;
-    case L'9':
+    case L'8':
         return FG_GRAY;
-    case L'A':
+    case L'9':
         return FG_LBLUE;
-    case L'B':
+    case L'A':
         return FG_LGREEN;
-    case L'C':
+    case L'B':
         return FG_LAQUA;
-    case L'D':
+    case L'C':
         return FG_LRED;
-    case L'E':
+    case L'D':
         return FG_LPURPLE;
-    case L'F':
+    case L'E':
         return FG_LYELLOW;
     default:
         return FG_LWHITE;
     }
 }
 
-void Window::DrawString(float x, float y, std::wstring &str, bool AlphaR)
+JVOID Window::DrawString(JCFLOAT x, JCFLOAT y, JCWSTR &str, JCBOOL AlphaR)
 {
-    int x_adder = 0, y_adder = 0;
-    for (int i = 0; i < str.size(); i++)
+    JSHORT x_adder = 0, y_adder = 0;
+    for (JSHORT i = 0; i < str.size(); i++)
     {
         if (str[i] == L'\n')
         {
@@ -60,15 +148,15 @@ void Window::DrawString(float x, float y, std::wstring &str, bool AlphaR)
             y_adder++;
             continue;
         }
-        Draw(x + x_adder, y + y_adder, str[i], (FG_LWHITE | FG_BLACK), AlphaR);
+        this->Draw(x + x_adder, y + y_adder, str[i], (FG_LWHITE | FG_BLACK), AlphaR);
         x_adder++;
     }
 }
 
-void Window::DrawCString(float x, float y, std::wstring &str, bool AlphaR)
+JVOID Window::DrawCString(JCFLOAT x, JCFLOAT y, JCWSTR &str, JCBOOL AlphaR)
 {
-    int x_adder = 0, y_adder = 0;
-    for (int i = 0; i < str.size(); i++)
+    JSHORT x_adder = 0, y_adder = 0;
+    for (JSHORT i = 0; i < str.size(); i++)
     {
         if (str[i] == L'\n')
         {
@@ -79,14 +167,14 @@ void Window::DrawCString(float x, float y, std::wstring &str, bool AlphaR)
         x_adder++;
         if (AlphaR && str[i] == L' ')
             continue;
-        Draw(x + x_adder - 1, y + y_adder, S1, (getColor(str[i]) | BG_BLACK));
+        this->Draw(x + x_adder - 1, y + y_adder, S1, (this->getColor(str[i]) | BG_BLACK));
     }
 }
 
-void Window::DrawString(float x, float y, wchar_t str[], bool AlphaR)
+JVOID Window::DrawString(JCFLOAT x, JCFLOAT y, JCWCHAR str[], JCBOOL AlphaR)
 {
-    int x_adder = 0, y_adder = 0;
-    for (int i = 0; str[i]; i++)
+    JSHORT x_adder = 0, y_adder = 0;
+    for (JSHORT i = 0; str[i]; i++)
     {
         if (str[i] == L'\n')
         {
@@ -94,71 +182,69 @@ void Window::DrawString(float x, float y, wchar_t str[], bool AlphaR)
             y_adder++;
             continue;
         }
-        Draw(x + x_adder, y + y_adder, str[i], (FG_LWHITE | BG_BLACK), AlphaR);
+        this->Draw(x + x_adder, y + y_adder, str[i], (FG_LWHITE | BG_BLACK), AlphaR);
         x_adder++;
     }
 }
 
-void Window::DrawHorizontal(float x, float y, int Width, wchar_t Character, short color, bool AlphaR)
+JVOID Window::DrawHorizontal(JCFLOAT x, JCFLOAT y, JCINT Width, JCSHORT Character, JCSHORT color, JCBOOL AlphaR)
 {
-    for (int i = (int)x; i < Width; i++)
-        Draw(x + i, y, Character, color, AlphaR);
+    for (JINT i = (JINT)x; i < Width; i++)
+        this->Draw(x + i, y, Character, color, AlphaR);
 }
 
-void Window::DrawVertical(float x, float y, int Height, wchar_t Character, short color, bool AlphaR)
+JVOID Window::DrawVertical(JCFLOAT x, JCFLOAT y, JCINT Height, JCSHORT Character, JCSHORT color, JCBOOL AlphaR)
 {
-    for (int i = (int)y; i < Height; i++)
-        Draw(x, y + i, Character, color, AlphaR);
+    for (JINT i = (JINT)y; i < Height; i++)
+        this->Draw(x, y + i, Character, color, AlphaR);
 }
 
-void Window::DrawLine(float x1, float y1, float x2, float y2, short Character, short color, bool AlphaR)
+JVOID Window::DrawLine(JCFLOAT x1, JCFLOAT y1, JCFLOAT x2, JCFLOAT y2, JCSHORT Character, JCSHORT color, JCBOOL AlphaR)
 {
-    float xCurrent = x1;
-    float yCurrent = y1;
+    JFLOAT xCurrent = x1;
+    JFLOAT yCurrent = y1;
 
     // Get Distant
-    float xDistant = (x1 > x2) ? (x1 - x2) : (x2 - x1);
-    float yDistant = (y1 > y2) ? (y1 - y2) : (y2 - y1);
+    JFLOAT xDistant = (x1 > x2) ? (x1 - x2) : (x2 - x1);
+    JFLOAT yDistant = (y1 > y2) ? (y1 - y2) : (y2 - y1);
 
     // Pythagoream
-    float distance = std::sqrt(xDistant * xDistant + yDistant * yDistant);
-    // float approxTD = std::round(distance);
-
+    JFLOAT distance = std::sqrt(xDistant * xDistant + yDistant * yDistant);
     // Get MAX Sample
-    int numberSample = std::max(xDistant, yDistant);
+    JINT numberSample = std::max(xDistant, yDistant);
 
     // Get The Delta of SAMPLE
-    float samplePX = xDistant / numberSample;
-    float samplePY = yDistant / numberSample;
-    for (int i = 0; i < numberSample; i++)
+    JFLOAT samplePX = xDistant / numberSample;
+    JFLOAT samplePY = yDistant / numberSample;
+    for (JINT i = 0; i < numberSample; i++)
     {
-        Draw(xCurrent, yCurrent, Character, color, AlphaR);
+        this->Draw(xCurrent, yCurrent, Character, color, AlphaR);
         xCurrent += (x1 > x2) ? -samplePX : samplePX;
         yCurrent += (y1 > y2) ? -samplePY : samplePY;
     }
 }
 
-void Window::DrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3, wchar_t Character, short color, bool AlphaR)
+JVOID Window::DrawTriangle(JCFLOAT x1, JCFLOAT y1, JCFLOAT x2, JCFLOAT y2, JCFLOAT x3, JCFLOAT y3, JCSHORT Character, JCSHORT color, JCBOOL AlphaR)
 {
-    DrawLine(x1, y1, x2, y2, Character, color, AlphaR);
-    DrawLine(x2, y2, x3, y3, Character, color, AlphaR);
-    DrawLine(x3, y3, x1, y1, Character, color, AlphaR);
+    this->DrawLine(x1, y1, x2, y2, Character, color, AlphaR);
+    this->DrawLine(x2, y2, x3, y3, Character, color, AlphaR);
+    this->DrawLine(x3, y3, x1, y1, Character, color, AlphaR);
 }
 
-void Window::DrawBox(int width, int height, float x, float y, short Character, short color, bool AlphaR)
+JVOID Window::DrawBox(JCINT width, JCINT height, JCFLOAT x, JCFLOAT y, JCSHORT Character, JCSHORT color, JCBOOL AlphaR)
 {
-    for (int i = 0; i < height; i++)
-        for (int j = 0; j < width; j++)
-            Draw(x + j, y + i, Character, color, AlphaR);
+    for (JINT i = 0; i < height; i++)
+        for (JINT j = 0; j < width; j++)
+            this->Draw(x + j, y + i, Character, color, AlphaR);
 }
 
-void Window::Draw(float x, float y, short Character, short color, bool AlphaR)
+JVOID Window::Draw(JCFLOAT x, JCFLOAT y, JCSHORT Character, JCSHORT color, JCBOOL AlphaR)
 {
-    if ((int)x >= 0 && (int)x < ScreenWidth && (int)y >= 0 && (int)y < ScreenHeight)
+    if ((JINT)x >= 0 && (JINT)x < this->GetWidth() && (JINT)y >= 0 && (JINT)y < this->GetHeight())
     {
         if (AlphaR && Character == S0)
             return;
-        Screen[ScreenWidth * (int)y + (int)x].Char.UnicodeChar = Character;
-        Screen[ScreenWidth * (int)y + (int)x].Attributes = color;
+        this->Screen[this->GetWidth() * (JINT)y + (JINT)x].Char.UnicodeChar = Character;
+        this->Screen[this->GetWidth() * (JINT)y + (JINT)x].Attributes = color;
     }
 }

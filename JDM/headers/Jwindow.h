@@ -3,121 +3,74 @@
 #include "Jinclude.h"
 #include "JkeyBoard.h"
 
+// Main Window
 class Window
 {
-protected:
-    bool Running;
 
-    std::string WTitle;
-    uint16_t ScreenWidth, ScreenHeight;
+private:
+    JCSHORT ScreenWidth, ScreenHeight;
+    JBOOL Running = JTRUE;
 
+    JSTR WTitle;
     HANDLE originalConsole;
     HANDLE hConsole;
     HANDLE hConsoleI;
-    HWND console;
-
-    DWORD BytesWritten;
     SMALL_RECT screenBufferCorners;
+    DWORD PrevMode;
+    CONSOLE_CURSOR_INFO CursorInfo;
 
-    float keyPressMS = 0.15;
-    float keyPressValue = 0.15;
+    std::chrono::_V2::system_clock::time_point timePoint1;
+    std::chrono::_V2::system_clock::time_point timePoint2;
+
+protected:
     KeyBoard keyboard = KeyBoard();
 
 public:
     CHAR_INFO *Screen;
+    JFLOAT ElapseTime;
 
 public:
-    Window(const char *Title, uint16_t Width, uint16_t Height, uint8_t fontSize = 5)
-        : ScreenWidth(Width), ScreenHeight(Height)
+    Window(JCCHAR *Title, JCSHORT Width, JCSHORT Height, JCSHORT fontSize = 5);
+    ~Window();
+
+    virtual JBOOL onUserUpdate(JCFLOAT ElapseTime) = 0;
+    virtual JBOOL onUserCreate() = 0;
+
+    constexpr JSHORT GetWidth() { return this->ScreenWidth; }
+    constexpr JSHORT GetHeight() { return this->ScreenHeight; }
+
+    JVOID SetConsoleWindowSize(HANDLE console, JCSHORT Width, JCSHORT Height, JCSHORT FontWidth, JCSHORT FontHeight);
+    JVOID Clear(JCSHORT Character = S0, JCSHORT Color = (FG_BLACK | BG_BLACK));
+    JVOID Start();
+    JBOOL gameLoop();
+
+    constexpr JBOOL collide_point(JCFLOAT x, JCFLOAT y, JCINT width, JCINT height, JCFLOAT x1, JCFLOAT y1) const
     {
-        Running = true;
-        WTitle = Title;
-        screenBufferCorners = {0, 0, 1, 1};
-        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        hConsoleI = GetStdHandle(STD_INPUT_HANDLE);
-
-        SetConsoleWindowInfo(hConsole, TRUE, &screenBufferCorners);
-        assert(SetConsoleScreenBufferSize(hConsole, {(short)Width, (short)Height}));
-        assert(SetConsoleActiveScreenBuffer(hConsole));
-
-        CONSOLE_FONT_INFOEX cfi;
-        cfi.cbSize = sizeof(cfi);
-        cfi.nFont = 0;
-        cfi.dwFontSize.X = fontSize;
-        cfi.dwFontSize.Y = fontSize;
-        cfi.FontFamily = FF_DONTCARE;
-        cfi.FontWeight = FW_NORMAL;
-        std::wcscpy(cfi.FaceName, L"Lucida Console");
-        assert(SetCurrentConsoleFontEx(hConsole, FALSE, &cfi));
-
-        ShowScrollBar(GetConsoleWindow(), SB_VERT, 0);
-
-        screenBufferCorners = {0, 0, (short)(Width - 1), (short)(Height - 1)};
-        assert(SetConsoleWindowInfo(hConsole, TRUE, &screenBufferCorners));
-        Screen = new CHAR_INFO[ScreenWidth * ScreenHeight];
+        return (x <= x1 && x1 <= x + width && y <= y1 && y1 <= y + height);
     }
-    ~Window()
+    constexpr JBOOL collide_box(JCFLOAT x1, JCFLOAT y1, JCINT width1, JCINT height1,
+                                JCFLOAT x2, JCFLOAT y2, JCINT width2, JCINT height2) const
     {
-
-        delete[] Screen;
+        if (x1 + width1 < x2)
+            return JFALSE;
+        if (x1 > x2 + width2)
+            return JFALSE;
+        if (y1 + height1 < y2)
+            return JFALSE;
+        if (y1 > y2 + height2)
+            return JFALSE;
+        return JTRUE;
     }
-    virtual void onUserUpdate(float ElapseTime) = 0;
-    virtual void onUserCreate() = 0;
-    constexpr uint16_t getw() { return this->ScreenWidth; }
-    constexpr uint16_t geth() { return this->ScreenHeight; }
-    void Clear(const wchar_t Character = S0, short color = (FG_BLACK | BG_BLACK));
+    Color getColor(JCSHORT Index);
+    JVOID Draw(JCFLOAT x, JCFLOAT y, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
+    JVOID DrawString(JCFLOAT x, JCFLOAT y, JCWSTR &str, JCBOOL AlphaR = JFALSE);
+    JVOID DrawString(JCFLOAT x, JCFLOAT y, JCWCHAR str[], JCBOOL AlphaR = JFALSE);
 
-    void run()
-    {
-        onUserCreate();
-        srand(std::time(0));
-        auto tp1 = std::chrono::system_clock::now();
-        auto tp2 = std::chrono::system_clock::now();
-        while (Running)
-        {
-            tp2 = std::chrono::system_clock::now();
-            std::chrono::duration<float> elapseTime = tp2 - tp1;
-            tp1 = tp2;
-            float ElapseTime = elapseTime.count();
-            onUserUpdate(ElapseTime);
+    JVOID DrawCString(JCFLOAT x, JCFLOAT y, JCWSTR &str, JCBOOL AlphaR = JFALSE);
+    JVOID DrawHorizontal(JCFLOAT x, JCFLOAT y, JCINT Width, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
+    JVOID DrawVertical(JCFLOAT x, JCFLOAT y, JCINT Height, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
+    JVOID DrawLine(JCFLOAT x1, JCFLOAT y1, JCFLOAT x2, JCFLOAT y2, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
+    JVOID DrawTriangle(JCFLOAT x1, JCFLOAT y1, JCFLOAT x2, JCFLOAT y2, JCFLOAT x3, JCFLOAT y3, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
 
-            keyboard.update();
-
-            wchar_t updater[256];
-            swprintf(updater, 256, L"%s - FPS: %3.2f", WTitle.c_str(), 1.0 / ElapseTime);
-            SetConsoleTitleW(updater);
-            WriteConsoleOutputW(hConsole, Screen, {(short)ScreenWidth, (short)ScreenHeight}, {0, 0}, &screenBufferCorners);
-        }
-    }
-
-    constexpr bool collide_point(float x1, float y1, int width, int height, const float x, const float y)
-    {
-        return (x1 <= x && x <= x1 + width && y1 <= y && y <= y1 + height);
-    }
-    constexpr bool collide_box(float x1, float y1, int width1, int height1,
-                               const int width, const int height, const float x, const float y)
-    {
-        if (x1 + width1 < x)
-            return 0;
-        if (x1 > x + width)
-            return 0;
-        if (y1 + height1 < y)
-            return 0;
-        if (y1 > y + height)
-            return 0;
-        return 1;
-    }
-
-    Color getColor(wchar_t index);
-    void Draw(float x, float y, short Character = S1, short color = (FG_LWHITE | BG_BLACK), bool AlphaR = 0);
-    void DrawString(float x, float y, std::wstring &str, bool AlphaR = 0);
-    void DrawString(float x, float y, wchar_t str[], bool AlphaR = 0);
-
-    void DrawCString(float x, float y, std::wstring &str, bool AlphaR = 0);
-    void DrawHorizontal(float x, float y, int Width, wchar_t Character = S1, short color = (FG_LWHITE | BG_BLACK), bool AlphaR = 0);
-    void DrawVertical(float x, float y, int Height, wchar_t Character = S1, short color = (FG_LWHITE | BG_BLACK), bool AlphaR = 0);
-    void DrawLine(float x1, float y1, float x2, float y2, short Character = S1, short color = (FG_LWHITE | BG_BLACK), bool AlphaR = 0);
-    void DrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3, wchar_t Character = S1, short color = (FG_LWHITE | BG_BLACK), bool AlphaR = 0);
-
-    void DrawBox(int width, int height, float x, float y, short Character = S1, short color = (FG_LWHITE | BG_BLACK), bool AlphaR = 0);
+    JVOID DrawBox(JCINT width, JCINT height, JCFLOAT x, JCFLOAT y, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
 };

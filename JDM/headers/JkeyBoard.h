@@ -3,28 +3,27 @@
 
 struct KeyState
 {
-    bool isPressed = false;
-    bool isHeld = false;
-    bool isReleased = false;
+    JBOOL isPressed = JFALSE;
+    JBOOL isHeld = JFALSE;
+    JBOOL isReleased = JFALSE;
 };
 
-constexpr bool isKeyHeld(bool OldState, bool NewState) { return (OldState && NewState); }
-constexpr bool isKeyPressed(bool OldState, bool NewState) { return (!OldState && NewState); }
-constexpr bool isKeyReleased(bool OldState, bool NewState) { return (OldState && !NewState); }
+constexpr JBOOL isKeyHeld(JBOOL OldState, JBOOL NewState) { return (OldState && NewState); }
+constexpr JBOOL isKeyPressed(JBOOL OldState, JBOOL NewState) { return (!OldState && NewState); }
+constexpr JBOOL isKeyReleased(JBOOL OldState, JBOOL NewState) { return (OldState && !NewState); }
 
 class KeyBoard
 {
 public:
     KeyState Keys[256];
-    bool KeyOldState[256] = {false};
-    bool KeyNewState[256] = {false};
+    JBOOL KeyOldState[256] = {JFALSE};
+    JBOOL KeyNewState[256] = {JFALSE};
 
 public:
     KeyBoard() {}
-
-    void update()
+    JVOID update()
     {
-        for (int i = 0; i < 256; i++)
+        for (JINT i = 0; i < 256; i++)
         {
             KeyNewState[i] = GetAsyncKeyState(i);
             Keys[i].isHeld = isKeyHeld(KeyOldState[i], KeyNewState[i]);
@@ -33,8 +32,7 @@ public:
             KeyOldState[i] = KeyNewState[i];
         }
     }
-
-    KeyState getState(short index)
+    KeyState getState(JCSHORT index)
     {
         if (index < 0 || index > 255)
             return KeyState();

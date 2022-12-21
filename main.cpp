@@ -3,14 +3,21 @@
 class WWindow : public Window
 {
 public:
-    WWindow() : Window("Game", 200, 150, 4) { }
-    void onUserCreate() { }
-    void onUserUpdate(float ElapseTime) { }
+    BoxEntity entity = BoxEntity(10, 10, 30, 30);
+
+public:
+    WWindow() : Window("Game", 100, 75, 8) {}
+    JBOOL onUserCreate() { return JTRUE; }
+    JBOOL onUserUpdate(float ElapseTime)
+    {
+        Clear();
+        return JTRUE;
+    }
 };
 
 int main()
 {
     WWindow window = WWindow();
-    window.run();
+    window.Start();
     return 0;
 }

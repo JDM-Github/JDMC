@@ -5,46 +5,47 @@
 class BoxEntity
 {
 public:
-    int width, height;
-    float x_pos, y_pos;
-    std::wstring design;
+    JINT width, height;
+    JFLOAT x, y;
+    JWSTR StringDesign;
+    JWSTR ColorDesign;
 
 public:
-    BoxEntity(int w, int h, float x, float y)
-        : width(w), height(h), x_pos(x), y_pos(y) { fill_design(); }
+    BoxEntity(JCINT w, JCINT h, JCFLOAT px, JCFLOAT py)
+        : width(w), height(h), x(px), y(py) { this->FillDesign(); }
+    BoxEntity() : width(10), height(10), x(0), y(0) { this->FillDesign(); }
     ~BoxEntity() {}
 
-    constexpr bool collide_point(const float x, const float y) { return (x_pos <= x && x <= x_pos + width && y_pos <= y && y <= y_pos + height); }
-    constexpr bool collide_box(const int width, const int height, const float x, const float y)
+    constexpr JBOOL collide_point(JCFLOAT px, JCFLOAT py) const { return (this->x <= px && px <= this->x + this->width && this->y <= py && py <= this->y + this->height); }
+    constexpr JBOOL collide_box(JCINT width, JCINT height, JCFLOAT px, JCFLOAT py) const
     {
-        if (this->x_pos + this->width < x)
-            return 0;
-        if (this->x_pos > x + width)
-            return 0;
-        if (this->y_pos + this->height < y)
-            return 0;
-        if (this->y_pos > y + height)
-            return 0;
-        return 1;
+        if (this->x + this->width < px)
+            return JFALSE;
+        if (this->x > px + width)
+            return JFALSE;
+        if (this->y + this->height < py)
+            return JFALSE;
+        if (this->y > py + height)
+            return JFALSE;
+        return JTRUE;
     }
-    void fill_design(wchar_t character = S1)
+    JVOID FillDesign(JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK))
     {
-        this->design.clear();
-        for (int r = 0; r < this->height; r++)
-            for (int c = 0; c < this->width; c++)
-                this->design += character;
-    }
-    void render(CHAR_INFO *Screen, const uint16_t Width, const uint16_t Height, bool AlphaR = 0)
-    {
-        int x = (int)this->x_pos;
-        int y = (int)this->y_pos;
+        this->StringDesign.clear();
+        this->ColorDesign.clear();
         for (int r = 0; r < this->height; r++)
             for (int c = 0; c < this->width; c++)
             {
-                if (x + c >= Width || x + c < 0 || y + r >= Height || y + r < 0)
-                    if (this->design[r * this->width + c] == S0 && AlphaR)
-                        continue;
-                Screen[((y + r) * Width) + c + x].Char.UnicodeChar = this->design[r * this->width + c];
+                this->StringDesign += Character;
+                this->ColorDesign += Color;
             }
+    }
+    JVOID Render(Window *Window, JCBOOL AlphaR = JFALSE)
+    {
+        JINT x = (JINT)this->x;
+        JINT y = (JINT)this->y;
+        for (JINT r = 0; r < this->height; r++)
+            for (JINT c = 0; c < this->width; c++)
+                Window->Draw(x + c, y + r, this->StringDesign[r * this->width + c], this->ColorDesign[r * this->width + c], AlphaR);
     }
 };
