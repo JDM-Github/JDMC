@@ -71,6 +71,7 @@
         "memory_resource": "cpp",
         "string_view": "cpp",
         "fstream": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "set": "cpp"
     }
 }

@@ -40,12 +40,29 @@ public:
                 this->ColorDesign += Color;
             }
     }
-    JVOID Render(Window *Window, JCBOOL AlphaR = JFALSE)
+    JVOID Render(JWINDOW *Window, JCBOOL AlphaR = JFALSE)
     {
         JINT x = (JINT)this->x;
         JINT y = (JINT)this->y;
         for (JINT r = 0; r < this->height; r++)
             for (JINT c = 0; c < this->width; c++)
                 Window->Draw(x + c, y + r, this->StringDesign[r * this->width + c], this->ColorDesign[r * this->width + c], AlphaR);
+    }
+    JVOID RenderC(JWINDOW *Window, JCSHORT Color = FG_LWHITE, JCBOOL AlphaR = JFALSE)
+    {
+        JINT x = (JINT)this->x;
+        JINT y = (JINT)this->y;
+        for (JINT r = 0; r < this->height; r++)
+            for (JINT c = 0; c < this->width; c++)
+                Window->Draw(x + c, y + r, this->StringDesign[r * this->width + c], Color, AlphaR);
+    }
+    JVOID RenderA(JWINDOW *Window, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE), JCBOOL AlphaR = JFALSE)
+    {
+        JINT x = (JINT)this->x;
+        JINT y = (JINT)this->y;
+        for (JINT r = 0; r < this->height; r++)
+            for (JINT c = 0; c < this->width; c++)
+                if (this->StringDesign[r * this->width + c] != L' ')
+                    Window->Draw(x + c, y + r, Character, Color, AlphaR);
     }
 };

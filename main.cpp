@@ -1,16 +1,17 @@
 #include "JDM.h"
 
-class WWindow : public Window
+class WWindow : public JWINDOW
 {
 public:
-    BoxEntity entity = BoxEntity(10, 10, 30, 30);
+    WWindow() : JWINDOW("Game", 200, 150, 4, 4) {}
+    JBOOL onUserCreate()
+    {
+    }
 
-public:
-    WWindow() : Window("Game", 100, 75, 8) {}
-    JBOOL onUserCreate() { return JTRUE; }
     JBOOL onUserUpdate(float ElapseTime)
     {
-        Clear();
+        Clear(S1, FG_BLACK);
+        SetColorIndex(0, VERY_DARK_BLUE);
         return JTRUE;
     }
 };
