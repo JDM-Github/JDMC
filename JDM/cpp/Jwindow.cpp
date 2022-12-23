@@ -7,6 +7,8 @@ JWINDOW::JWINDOW(JCCHAR *Title, JCSHORT Width, JCSHORT Height, JCSHORT fontWidth
     this->hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     this->hConsoleI = GetStdHandle(STD_INPUT_HANDLE);
     this->bufferInfo.cbSize = sizeof(CONSOLE_SCREEN_BUFFER_INFOEX);
+    assert(SetConsoleActiveScreenBuffer(this->hConsole));
+    assert(this->SetupWindow());
 
 #if JEDITABLE
     GetConsoleMode(this->hConsoleI, &this->PrevMode);
@@ -35,6 +37,7 @@ JWINDOW::~JWINDOW()
 
     this->CursorInfo.bVisible = JTRUE;
     SetConsoleCursorInfo(this->hConsole, &this->CursorInfo);
+    SetConsoleTextAttribute(this->originalConsole, FG_WHITE | BG_BLACK);
     delete[] this->Screen;
 }
 
@@ -46,7 +49,6 @@ JVOID JWINDOW::SetConsoleWindowSize(HANDLE console, JCSHORT Width, JCSHORT Heigh
     assert(SetConsoleActiveScreenBuffer(console));
 
     CONSOLE_FONT_INFOEX cfi;
-
     cfi.cbSize = sizeof(cfi);
     cfi.nFont = 0;
     cfi.dwFontSize.X = FontWidth;
@@ -68,6 +70,29 @@ JVOID JWINDOW::Start()
     this->timePoint2 = std::chrono::system_clock::now();
     while (this->Running)
         this->Running = this->gameLoop();
+}
+
+JBOOL JWINDOW::SetupWindow()
+{
+#if JSET_COLOR
+    SetColorIndex(0x0, COLORINDEX0);
+    SetColorIndex(0x1, COLORINDEX1);
+    SetColorIndex(0x2, COLORINDEX2);
+    SetColorIndex(0x3, COLORINDEX3);
+    SetColorIndex(0x4, COLORINDEX4);
+    SetColorIndex(0x5, COLORINDEX5);
+    SetColorIndex(0x6, COLORINDEX6);
+    SetColorIndex(0x7, COLORINDEX7);
+    SetColorIndex(0x8, COLORINDEX8);
+    SetColorIndex(0x9, COLORINDEX9);
+    SetColorIndex(0xA, COLORINDEXA);
+    SetColorIndex(0xB, COLORINDEXB);
+    SetColorIndex(0xC, COLORINDEXC);
+    SetColorIndex(0xD, COLORINDEXD);
+    SetColorIndex(0xE, COLORINDEXE);
+    SetColorIndex(0xF, COLORINDEXF);
+#endif
+    return JTRUE;
 }
 
 JBOOL JWINDOW::gameLoop()
@@ -111,6 +136,7 @@ JVOID JWINDOW::Clear(JCSHORT Character, JCSHORT Color)
 JVOID JWINDOW::SetColorIndex(JCSHORT Index, PixelRGB rgb)
 {
     this->bufferInfo.ColorTable[Index] = RGB(rgb.R, rgb.G, rgb.B);
+    this->bufferInfo.ColorTable[Index];
     SetConsoleScreenBufferInfoEx(this->hConsole, &this->bufferInfo);
 }
 JVOID JWINDOW::DrawString(JCFLOAT x, JCFLOAT y, JCWSTR &str, JCBOOL AlphaR)
@@ -124,7 +150,7 @@ JVOID JWINDOW::DrawString(JCFLOAT x, JCFLOAT y, JCWSTR &str, JCBOOL AlphaR)
             y_adder++;
             continue;
         }
-        this->Draw(x + x_adder, y + y_adder, str[i], (FG_LWHITE | FG_BLACK), AlphaR);
+        this->Draw(x + x_adder, y + y_adder, str[i], (FG_WHITE | FG_BLACK), AlphaR);
         x_adder++;
     }
 }
@@ -158,7 +184,7 @@ JVOID JWINDOW::DrawString(JCFLOAT x, JCFLOAT y, JCWCHAR str[], JCBOOL AlphaR)
             y_adder++;
             continue;
         }
-        this->Draw(x + x_adder, y + y_adder, str[i], (FG_LWHITE | BG_BLACK), AlphaR);
+        this->Draw(x + x_adder, y + y_adder, str[i], (FG_WHITE | BG_BLACK), AlphaR);
         x_adder++;
     }
 }

@@ -10,8 +10,7 @@ public:
 
     JBOOL onUserUpdate(float ElapseTime)
     {
-        Clear(S1, FG_BLACK);
-        SetColorIndex(0, VERY_DARK_BLUE);
+        Clear(S1, FG_CYAN);
         return JTRUE;
     }
 };

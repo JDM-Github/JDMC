@@ -37,16 +37,16 @@ public:
     JVOID Start();
     JVOID SetColorIndex(JCSHORT Index, PixelRGB rgb);
 
-    JVOID Draw(JCFLOAT x, JCFLOAT y, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
+    JVOID Draw(JCFLOAT x, JCFLOAT y, JCSHORT Character = S1, JCSHORT Color = (FG_WHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
     JVOID DrawString(JCFLOAT x, JCFLOAT y, JCWSTR &str, JCBOOL AlphaR = JFALSE);
     JVOID DrawString(JCFLOAT x, JCFLOAT y, JCWCHAR str[], JCBOOL AlphaR = JFALSE);
 
     JVOID DrawCString(JCFLOAT x, JCFLOAT y, JCWSTR &str, JCBOOL AlphaR = JFALSE);
-    JVOID DrawHorizontal(JCFLOAT x, JCFLOAT y, JCINT Width, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
-    JVOID DrawVertical(JCFLOAT x, JCFLOAT y, JCINT Height, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
-    JVOID DrawLine(JCFLOAT x1, JCFLOAT y1, JCFLOAT x2, JCFLOAT y2, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
-    JVOID DrawTriangle(JCFLOAT x1, JCFLOAT y1, JCFLOAT x2, JCFLOAT y2, JCFLOAT x3, JCFLOAT y3, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
-    JVOID DrawBox(JCINT width, JCINT height, JCFLOAT x, JCFLOAT y, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
+    JVOID DrawHorizontal(JCFLOAT x, JCFLOAT y, JCINT Width, JCSHORT Character = S1, JCSHORT Color = (FG_WHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
+    JVOID DrawVertical(JCFLOAT x, JCFLOAT y, JCINT Height, JCSHORT Character = S1, JCSHORT Color = (FG_WHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
+    JVOID DrawLine(JCFLOAT x1, JCFLOAT y1, JCFLOAT x2, JCFLOAT y2, JCSHORT Character = S1, JCSHORT Color = (FG_WHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
+    JVOID DrawTriangle(JCFLOAT x1, JCFLOAT y1, JCFLOAT x2, JCFLOAT y2, JCFLOAT x3, JCFLOAT y3, JCSHORT Character = S1, JCSHORT Color = (FG_WHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
+    JVOID DrawBox(JCINT width, JCINT height, JCFLOAT x, JCFLOAT y, JCSHORT Character = S1, JCSHORT Color = (FG_WHITE | BG_BLACK), JCBOOL AlphaR = JFALSE);
 
 protected:
     JWINDOW(JCCHAR *Title, JCSHORT Width, JCSHORT Height, JCSHORT fontWidth = 5, JCSHORT fontHeight = 5);
@@ -59,6 +59,7 @@ protected:
 
 private:
     JVOID SetConsoleWindowSize(HANDLE console, JCSHORT Width, JCSHORT Height, JCSHORT FontWidth, JCSHORT FontHeight);
+    JBOOL SetupWindow();
     JBOOL gameLoop();
     constexpr inline Color getColor(JCSHORT Index) const
     {
@@ -71,31 +72,31 @@ private:
         case L'2':
             return FG_GREEN;
         case L'3':
-            return FG_AQUA;
+            return FG_CYAN;
         case L'4':
             return FG_RED;
         case L'5':
-            return FG_PURPLE;
+            return FG_MAGENTA;
         case L'6':
             return FG_YELLOW;
         case L'7':
-            return FG_WHITE;
-        case L'8':
             return FG_GRAY;
+        case L'8':
+            return FG_DARK_GRAY;
         case L'9':
-            return FG_LBLUE;
+            return FG_DARK_BLUE;
         case L'A':
-            return FG_LGREEN;
+            return FG_DARK_GREEN;
         case L'B':
-            return FG_LAQUA;
+            return FG_DARK_CYAN;
         case L'C':
-            return FG_LRED;
+            return FG_DARK_RED;
         case L'D':
-            return FG_LPURPLE;
+            return FG_DARK_MAGENTA;
         case L'E':
-            return FG_LYELLOW;
+            return FG_DARK_YELLOW;
         default:
-            return FG_LWHITE;
+            return FG_WHITE;
         }
     }
 };

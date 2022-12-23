@@ -8,7 +8,7 @@ namespace JDM
     {
 
     public:
-        static JVOID DrawBoxHollow(JWINDOW *window, JCINT width, JCINT height, JCFLOAT x, JCFLOAT y, JCINT thickness, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE)
+        static JVOID DrawBoxHollow(JWINDOW *window, JCINT width, JCINT height, JCFLOAT x, JCFLOAT y, JCINT thickness, JCSHORT Character = S1, JCSHORT Color = (FG_WHITE | BG_BLACK), JCBOOL AlphaR = JFALSE)
         {
             for (JINT px = x; px < width; px++)
                 for (JINT py = y; py < y + thickness; py++)
@@ -27,7 +27,7 @@ namespace JDM
                     window->Draw(px, py, Character, Color, AlphaR);
         }
 
-        static JVOID DrawCircle(JWINDOW *window, JCFLOAT x, JCFLOAT y, JCINT radius, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK), JCBOOL AlphaR = JFALSE)
+        static JVOID DrawCircle(JWINDOW *window, JCFLOAT x, JCFLOAT y, JCINT radius, JCSHORT Character = S1, JCSHORT Color = (FG_WHITE | BG_BLACK), JCBOOL AlphaR = JFALSE)
         {
             for (JINT h = 0; h < radius * 2; h++)
                 for (JINT w = 0; w < radius * 2; w++)

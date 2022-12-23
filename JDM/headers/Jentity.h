@@ -29,7 +29,7 @@ public:
             return JFALSE;
         return JTRUE;
     }
-    JVOID FillDesign(JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE | BG_BLACK))
+    JVOID FillDesign(JCSHORT Character = S1, JCSHORT Color = (FG_WHITE | BG_BLACK))
     {
         this->StringDesign.clear();
         this->ColorDesign.clear();
@@ -48,7 +48,7 @@ public:
             for (JINT c = 0; c < this->width; c++)
                 Window->Draw(x + c, y + r, this->StringDesign[r * this->width + c], this->ColorDesign[r * this->width + c], AlphaR);
     }
-    JVOID RenderC(JWINDOW *Window, JCSHORT Color = FG_LWHITE, JCBOOL AlphaR = JFALSE)
+    JVOID RenderC(JWINDOW *Window, JCSHORT Color = FG_WHITE, JCBOOL AlphaR = JFALSE)
     {
         JINT x = (JINT)this->x;
         JINT y = (JINT)this->y;
@@ -56,7 +56,7 @@ public:
             for (JINT c = 0; c < this->width; c++)
                 Window->Draw(x + c, y + r, this->StringDesign[r * this->width + c], Color, AlphaR);
     }
-    JVOID RenderA(JWINDOW *Window, JCSHORT Character = S1, JCSHORT Color = (FG_LWHITE), JCBOOL AlphaR = JFALSE)
+    JVOID RenderA(JWINDOW *Window, JCSHORT Character = S1, JCSHORT Color = (FG_WHITE), JCBOOL AlphaR = JFALSE)
     {
         JINT x = (JINT)this->x;
         JINT y = (JINT)this->y;
