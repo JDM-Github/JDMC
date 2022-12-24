@@ -1,9 +1,9 @@
 #include "JDM.h"
 
-JCLASS SpriteEditor : JPUBLIC JWINDOW
+JCLASS ConsoleExample : JPUBLIC JWINDOW
 {
 JPUBLIC:
-    SpriteEditor() : JWINDOW("Game", 100, 50, 5, 5) {}
+    ConsoleExample() : JWINDOW("Game", 100, 50, 5, 5) {}
     JBOOL onUserCreate() { JRETURN JTRUE; }
     JBOOL onUserUpdate(JFLOAT ElapseTime)
     {
@@ -14,6 +14,6 @@ JPUBLIC:
 
 JINT main()
 {
-    JMS<SpriteEditor>()->Start();
+    JMS<ConsoleExample>()->Start();
     JRETURN JFALSE;
 }
