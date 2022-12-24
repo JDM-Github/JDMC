@@ -1,29 +1,29 @@
 #pragma once
 #include "Jinclude.h"
 
-struct KeyState
+JSTRUCT KeyState
 {
     JBOOL isPressed = JFALSE;
     JBOOL isHeld = JFALSE;
     JBOOL isReleased = JFALSE;
 };
 
-constexpr JBOOL isKeyHeld(JBOOL OldState, JBOOL NewState) { return (OldState && NewState); }
-constexpr JBOOL isKeyPressed(JBOOL OldState, JBOOL NewState) { return (!OldState && NewState); }
-constexpr JBOOL isKeyReleased(JBOOL OldState, JBOOL NewState) { return (OldState && !NewState); }
+JCONSTEXPR JBOOL isKeyHeld(JBOOL OldState, JBOOL NewState) { JRETURN(OldState && NewState); }
+JCONSTEXPR JBOOL isKeyPressed(JBOOL OldState, JBOOL NewState) { JRETURN(!OldState && NewState); }
+JCONSTEXPR JBOOL isKeyReleased(JBOOL OldState, JBOOL NewState) { JRETURN(OldState && !NewState); }
 
-class KeyBoard
+JCLASS KeyBoard
 {
-public:
+JPUBLIC:
     KeyState Keys[256];
     JBOOL KeyOldState[256] = {JFALSE};
     JBOOL KeyNewState[256] = {JFALSE};
 
-public:
+JPUBLIC:
     KeyBoard() {}
     JVOID update()
     {
-        for (JINT i = 0; i < 256; i++)
+        JFOR(JINT i = 0; i < 256; i++)
         {
             KeyNewState[i] = GetAsyncKeyState(i);
             Keys[i].isHeld = isKeyHeld(KeyOldState[i], KeyNewState[i]);
@@ -34,8 +34,8 @@ public:
     }
     KeyState getState(JCSHORT index)
     {
-        if (index < 0 || index > 255)
-            return KeyState();
-        return Keys[index];
+        JIF(index < 0 || index > 255)
+        JRETURN KeyState();
+        JRETURN Keys[index];
     }
 };

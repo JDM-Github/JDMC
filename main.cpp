@@ -1,23 +1,19 @@
 #include "JDM.h"
 
-class WWindow : public JWINDOW
+JCLASS SpriteEditor : JPUBLIC JWINDOW
 {
-public:
-    WWindow() : JWINDOW("Game", 200, 150, 4, 4) {}
-    JBOOL onUserCreate()
+JPUBLIC:
+    SpriteEditor() : JWINDOW("Game", 100, 50, 5, 5) {}
+    JBOOL onUserCreate() { JRETURN JTRUE; }
+    JBOOL onUserUpdate(JFLOAT ElapseTime)
     {
-    }
-
-    JBOOL onUserUpdate(float ElapseTime)
-    {
-        Clear(S1, FG_CYAN);
-        return JTRUE;
-    }
+        Clear(S0, BG_CYAN);
+        JRETURN JTRUE;
+    } 
 };
 
-int main()
+JINT main()
 {
-    WWindow window = WWindow();
-    window.Start();
-    return 0;
+    JMS<SpriteEditor>()->Start();
+    JRETURN JFALSE;
 }
