@@ -1,4 +1,7 @@
 #pragma once
+#ifndef __CONFIG__H
+#define __CONFIG__H
+
 #include "Jtypedef.h"
 
 #ifndef JSHMAX
@@ -15,6 +18,10 @@
 
 #ifndef JEDITABLE
     #define JEDITABLE JTRUE
+#endif
+
+#ifndef JREMOVETITLE
+    #define JREMOVETITLE JTRUE
 #endif
 
 #ifndef JSHOWFPS
@@ -52,3 +59,4 @@
     #define COLORINDEXF {255, 255, 255}
 #endif
 
+#endif

@@ -37,6 +37,7 @@
 #define JSTATIC static
 #define JNAMESPACE namespace
 #define JUSING using
+#define JAUTO auto
 #define JPUBLIC public
 #define JPRIVATE private
 #define JPROTECTED protected

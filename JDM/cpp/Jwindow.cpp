@@ -14,6 +14,7 @@ JWINDOW::JWINDOW(JCCHAR *Title, JCSHORT Width, JCSHORT Height, JCSHORT fontWidth
     GetConsoleMode(JTHIS->hConsoleI, &JTHIS->PrevMode);
     SetConsoleMode(JTHIS->hConsoleI, ENABLE_EXTENDED_FLAGS | (JTHIS->PrevMode & ~ENABLE_QUICK_EDIT_MODE));
 #endif
+
     SetConsoleWindowSize(JTHIS->hConsole, ScreenWidth, ScreenHeight, fontWidth, fontHeight);
     ShowScrollBar(GetConsoleWindow(), SB_VERT, JFALSE);
 
@@ -103,7 +104,8 @@ JBOOL JWINDOW::gameLoop() {
         JRETURN JFALSE;
 #endif
         JWCHAR updater[JMAX_HEX];
-        swprintf(updater, JMAX_HEX, L"JDMC: JDMaster Console Framework:    %s - FPS: %4.2f", JTHIS->WTitle.c_str(),
+        swprintf(updater, JMAX_HEX, L"%s%s - FPS: %4.2f",
+                 (JREMOVETITLE) ? "" : "JDMC: JDMaster Console Framework:    ", JTHIS->WTitle.c_str(),
                  (JSHOWFPS) ? 1.0 / JTHIS->ElapseTime : JNONE);
         SetConsoleTitleW(updater);
         WriteConsoleOutputW(JTHIS->hConsole, JTHIS->Screen, {JTHIS->GetWidth(), JTHIS->GetHeight()}, {JNONE, JNONE}, &JTHIS->screenBufferCorners);
@@ -111,8 +113,7 @@ JBOOL JWINDOW::gameLoop() {
     }
     JRETURN JFALSE;
 }
-JVOID JWINDOW::Clear(JCSHORT Character, JCSHORT Color)
-{
+JVOID JWINDOW::Clear(JCSHORT Character, JCSHORT Color) {
     JFOR(JSHORT i = JNONE; i < JTHIS->GetHeight(); i++)
         JFOR(JSHORT j = JNONE; j < JTHIS->GetWidth(); j++) {
             JTHIS->Screen[i * JTHIS->GetWidth() + j].Char.UnicodeChar = Character;
@@ -125,8 +126,7 @@ JVOID JWINDOW::SetColorIndex(JCSHORT Index, JDM::PixelRGB rgb)
     JTHIS->bufferInfo.ColorTable[Index];
     SetConsoleScreenBufferInfoEx(JTHIS->hConsole, &JTHIS->bufferInfo);
 }
-JVOID JWINDOW::DrawString(JCFLOAT x, JCFLOAT y, JCWSTR &str, JCBOOL AlphaR)
-{
+JVOID JWINDOW::DrawString(JCFLOAT x, JCFLOAT y, JCWSTR &str, JCBOOL AlphaR) {
     JSHORT x_adder = JNONE, y_adder = JNONE;
     JFOR(JSHORT i = JNONE; i < str.size(); i++) {
         JIF(str[i] == JDM::NEWLINE) {

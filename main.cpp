@@ -1,16 +1,17 @@
 #include "JDM.h"
 
 JCLASS ConsoleExample : JPUBLIC JWINDOW {
+JPRIVATE:
+
+
 JPUBLIC:
-    ConsoleExample() : JWINDOW("Game", 50, 50, 10, 10) { }
+    ConsoleExample() : JWINDOW("NAKAMURA", 200, 120, 5, 5) { }
     JBOOL onUserCreate() {
         JRETURN JTRUE;
     }
-    JBOOL onUserUpdate(JFLOAT ElapseTime)
-    {
+
+    JBOOL onUserUpdate(JFLOAT ElapseTime) {
         Clear(BLANK, BG_CYAN);
-        JIF (keyboard.Keys[Keys::J_AKEY].isHeld)
-            DrawBox(10, 10, 0, 0, PIXEL_SOLID, FG_RED, JFALSE);
         JRETURN JTRUE;
     }
 };
