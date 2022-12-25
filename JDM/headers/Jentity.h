@@ -38,7 +38,7 @@ JPUBLIC:
         JINT y = (JINT)JTHIS->y;
         JFOR(JINT r = JNONE; r < JTHIS->height; r++)
             JFOR(JINT c = JNONE; c < JTHIS->width; c++)
-                Window->Draw(x + c, y + r, JTHIS->StringDesign[r * JTHIS->width + c], JTHIS->ColorDesign[r * JTHIS->width + c], AlphaR);
+                Window->Draw({JSTATICC<JFLOAT>(x + c), JSTATICC<JFLOAT>(y + r)}, JTHIS->StringDesign[r * JTHIS->width + c], JTHIS->ColorDesign[r * JTHIS->width + c], AlphaR);
     }
     JVOID RenderC(JWINDOW *Window, JCSHORT Color = JDM::FG_WHITE, JCBOOL AlphaR = JFALSE)
     {
@@ -46,7 +46,7 @@ JPUBLIC:
         JINT y = (JINT)JTHIS->y;
             JFOR(JINT r = JNONE; r < JTHIS->height; r++)
                 JFOR(JINT c = JNONE; c < JTHIS->width; c++)
-                    Window->Draw(x + c, y + r, JTHIS->StringDesign[r * JTHIS->width + c], Color, AlphaR);
+                    Window->Draw({JSTATICC<JFLOAT>(x + c), JSTATICC<JFLOAT>(y + r)}, JTHIS->StringDesign[r * JTHIS->width + c], Color, AlphaR);
     }
     JVOID RenderA(JWINDOW *Window, JCSHORT Character = JDM::PIXEL_SOLID, JCSHORT Color = (JDM::FG_WHITE | JDM::BG_BLACK), JCBOOL AlphaR = JFALSE)
     {
@@ -55,6 +55,6 @@ JPUBLIC:
         JFOR(JINT r = JNONE; r < JTHIS->height; r++)
             JFOR(JINT c = JNONE; c < JTHIS->width; c++)
                 JIF(JTHIS->StringDesign[r * JTHIS->width + c] != L' ')
-                Window->Draw(x + c, y + r, Character, Color, AlphaR);
+                Window->Draw({JSTATICC<JFLOAT>(x + c), JSTATICC<JFLOAT>(y + r)}, Character, Color, AlphaR);
     }
 };

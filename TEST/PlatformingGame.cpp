@@ -127,12 +127,12 @@ JPUBLIC:
             JFOR(JINT y = -2; y < TileVisibilityY + 2; y++) {
                 JWCHAR TileID = GetTile(x + OffsetX, y + OffsetY);
                 JSWITCH (TileID) {
-                    JCASE L'#' : DrawBox(TileWidth, TileHeight, x * TileWidth - TileOffsetX, y * TileHeight - TileOffsetY, PIXEL_SOLID, FG_DARK_RED, JTRUE); JBREAK;
+                    JCASE L'#' : DrawBox({TileWidth, TileHeight, x * TileWidth - TileOffsetX, y * TileHeight - TileOffsetY}, PIXEL_SOLID, FG_DARK_RED, JTRUE); JBREAK;
                     JDEFAULT:  JBREAK;
                 }
             }
 
-        DrawBox(TileWidth, TileHeight, (Player.X - OffsetX) * TileWidth, (Player.Y - OffsetY) * TileHeight, PIXEL_SOLID, FG_DARK_BLUE, JTRUE);
+        DrawBox({TileWidth, TileHeight, (Player.X - OffsetX) * TileWidth, (Player.Y - OffsetY) * TileHeight}, PIXEL_SOLID, FG_DARK_BLUE, JTRUE);
         JRETURN JTRUE;
     }
 };
