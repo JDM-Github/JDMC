@@ -9,8 +9,11 @@
 #include <queue>
 #include <chrono>
 
+#define JNONE 0
 #define JTRUE 1
 #define JFALSE 0
+#define JMAX_HEX 0xFF
+
 #define JCONST const
 #define JNEW new
 #define JFOR for
@@ -18,6 +21,7 @@
 #define JCONTINUE continue
 #define JRETURN return
 #define JIF if
+#define JELSE else
 #define JTHIS this
 #define JDELETE delete
 #define JWHILE while
@@ -32,6 +36,7 @@
 #define JVIRTUAL virtual
 #define JSTATIC static
 #define JNAMESPACE namespace
+#define JUSING using
 #define JPUBLIC public
 #define JPRIVATE private
 #define JPROTECTED protected
@@ -40,11 +45,6 @@
 #define JSTATICC static_cast
 #define JDYNAMICC dynamic_cast
 #define JREINTERPRETC reinterpret_cast
-
-#if AUTONAMESPACE
-using namespace JDM;
-using namespace std;
-#endif
 
 void typedef JVOID;
 bool typedef JBOOL;

@@ -4,3 +4,7 @@
 #include "Jentity.h"
 #include "Jdrawer.h"
 #include "Jalgorithms.h"
+
+#if JAUTONS
+    JUSING JNAMESPACE JDM;
+#endif
