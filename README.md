@@ -12,12 +12,12 @@ JCLASS ConsoleExample : JPUBLIC JWINDOW {
 
 JPRIVATE:
 JPUBLIC:
-    ConsoleExample() : JWINDOW("ConsoleExample", 200, 120, 5, 5) { }
+    ConsoleExample() : JWINDOW("ConsoleExample", 100, 80, 10, 10) { }
     JBOOL onUserCreate() {
         JRETURN JTRUE;
     }
 
-    JBOOL onUserUpdate(JFLOAT ElapseTime) {
+    JBOOL onUserUpdate() {
         Clear(BLANK, BG_BLACK);
         JRETURN JTRUE;
     }
@@ -29,5 +29,6 @@ JINT main()
     JMS<ConsoleExample>()->Start();
     JRETURN JFALSE;
 }
+
 
 ```
