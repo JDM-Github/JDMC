@@ -1,10 +1,9 @@
 #include "JDM.h"
 
-JCLASS ConsoleExample : JPUBLIC JWINDOW {
+JCLASS PlatformGames : JPUBLIC JWINDOW {
 JPRIVATE:
 
     JSTRUCT Entity { JFLOAT X, Y, NX, NY, VX, VY, Accelaration; };
-    
     JWSTR LevelMap;
     JINT LevelWidth;
     JINT LevelHeight;
@@ -19,7 +18,7 @@ JPRIVATE:
     Entity Player = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
 
 JPUBLIC:
-    ConsoleExample() : JWINDOW("NAKAMURA", 200, 120, 5, 5) { }
+    PlatformGames() : JWINDOW("Basic Platform Game", 200, 120, 5, 5) { }
     JBOOL onUserCreate() {
         LevelWidth = 100;
         LevelHeight = 10;
@@ -31,8 +30,8 @@ JPUBLIC:
         LevelMap += L"                                                                                                    ";
         LevelMap += L"                                                                                                    ";
         LevelMap += L"                                                                                                    ";
-        LevelMap += L"                                                                                                    ";
-        LevelMap += L"                                                                                                    ";
+        LevelMap += L"             #                                                                                      ";
+        LevelMap += L"            ###                                                                                     ";
         LevelMap += L"####################################################################################################";
 
         TileVisibilityX = GetWidth() / TileWidth;
@@ -51,29 +50,15 @@ JPUBLIC:
     }
 
     JVOID CheckCollision(Entity &entity) {
-        JIF (entity.VX <= 0) {
-            JIF(GetTile(entity.NX + 0.0f, entity.Y + 0.f) != BLANK || GetTile(entity.NX + 0.f, entity.Y + 0.9f) != BLANK) {
-                entity.NX = (JINT)entity.NX + 1;
-                entity.VX = 0;
-            }
+        JIF(GetTile(entity.NX + ((entity.VX <= 0) ? 0.0f : 1.f), entity.Y + 0.f) != BLANK
+         || GetTile(entity.NX + ((entity.VX <= 0) ? 0.0f : 1.f), entity.Y + 0.9f) != BLANK) {
+            entity.NX = (JINT)entity.NX + ((entity.VX <= 0) ? 1 : 0);
+            entity.VX = 0;
         }
-        JELSE {
-            JIF(GetTile(entity.NX + 1.f, entity.Y + 0.f) != BLANK || GetTile(entity.NX + 1.f, entity.Y + 0.9f) != BLANK) {
-                entity.NX = (JINT)entity.NX;
-                entity.VX = 0;
-            }
-        }
-        JIF (entity.VY <= 0) {
-            JIF(GetTile(entity.NX + 0.f, entity.NY + 0.f) != BLANK || GetTile(entity.NX + 0.9f, entity.NY + 0.f) != BLANK) {
-                entity.NY = (JINT)entity.NY + 1;
-                entity.VY = 0;
-            }
-        }
-        JELSE {
-            JIF(GetTile(entity.NX + 0.f, entity.NY + 1.f) != BLANK || GetTile(entity.NX + 0.9f, entity.NY + 1.f) != BLANK) {
-                entity.NY = (JINT)entity.NY;
-                entity.VY = 0;
-            }
+        JIF(GetTile(entity.NX + 0.f, entity.NY + ((entity.VY <= 0) ? 0.f : 1.f)) != BLANK
+         || GetTile(entity.NX + 0.9f, entity.NY + ((entity.VY <= 0) ? 0.f : 1.f)) != BLANK) {
+            entity.NY = (JINT)entity.NY + ((entity.VY <= 0) ? 1 : 0);
+            entity.VY = 0;
         }
         entity.X = entity.NX;
         entity.Y = entity.NY;
@@ -99,7 +84,7 @@ JPUBLIC:
         JIF (entity.VY < -20.f) entity.VY = -20.f;
     }
 
-    JBOOL onUserUpdate(JFLOAT ElapseTime) {
+    JBOOL onUserUpdate() {
         Clear(BLANK, BG_CYAN);
 
         Player.VX = 0;
@@ -139,6 +124,6 @@ JPUBLIC:
 
 JINT main()
 {
-    JMS<ConsoleExample>()->Start();
+    JMS<PlatformGames>()->Start();
     JRETURN JFALSE;
 }

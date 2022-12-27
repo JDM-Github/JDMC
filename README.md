@@ -18,7 +18,7 @@ JPUBLIC:
     }
 
     JBOOL onUserUpdate(JFLOAT ElapseTime) {
-        Clear(BLANK, BG_BLANK);
+        Clear(BLANK, BG_BLACK);
         JRETURN JTRUE;
     }
 };
