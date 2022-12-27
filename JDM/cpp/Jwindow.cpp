@@ -19,7 +19,7 @@ JWINDOW::JWINDOW(JCCHAR *Title, JCSHORT Width, JCSHORT Height, JCSHORT fontWidth
     ShowScrollBar(GetConsoleWindow(), SB_VERT, JFALSE);
 
     GetConsoleCursorInfo(JTHIS->hConsole, &JTHIS->CursorInfo);
-    JTHIS->CursorInfo.dwSize = JFALSE;
+    JTHIS->CursorInfo.dwSize = 100;
     JTHIS->CursorInfo.bVisible = JFALSE;
     SetConsoleCursorInfo(JTHIS->hConsole, &JTHIS->CursorInfo);
     GetConsoleScreenBufferInfoEx(JTHIS->hConsole, &bufferInfo);
@@ -34,6 +34,7 @@ JWINDOW::~JWINDOW() {
     SetConsoleCursorPosition(JTHIS->originalConsole, {0, 0});
     SetConsoleMode(JTHIS->hConsoleI, JTHIS->PrevMode);
 
+    JTHIS->CursorInfo.dwSize = JNONE;
     JTHIS->CursorInfo.bVisible = JTRUE;
     SetConsoleCursorInfo(JTHIS->hConsole, &JTHIS->CursorInfo);
     SetConsoleTextAttribute(JTHIS->originalConsole, JDM::FG_WHITE | JDM::BG_BLACK);
