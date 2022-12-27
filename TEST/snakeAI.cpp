@@ -11,10 +11,11 @@ JPRIVATE:
         JBOOL Moving;
     };
 
+    JINT Score = 0;
     JBOOL GameStart = JFALSE;
     AllMove OldMove;
-    JFLOAT SnakeSpeed = 0.03;
-    JCFLOAT CSnakeSpeed = 0.03;
+    JFLOAT SnakeSpeed = 0.000;
+    JCFLOAT CSnakeSpeed = 0.000;
     SnakeBody SnakeHead = {2, 7, 2, 7, NONE, NONE, JFALSE};
     JVECTOR<SnakeBody> SnakeTail;
 
@@ -24,6 +25,7 @@ JPRIVATE:
     JWSTR AppleDesign;
     JINT MapWidth = 20;
     JINT MapHeight = 20;
+    JINT AllMapSize = 400;
     JVECTOR<JVECTOR<INT>> HamiltonianCycle;
 
 JPUBLIC:
@@ -58,6 +60,11 @@ JPUBLIC:
         SnakeHeadDesign += L"0220\n";
         SnakeHeadDesign += L"0000\n";
 
+        SnaketailDesign += L"0000\n";
+        SnaketailDesign += L"0330\n";
+        SnaketailDesign += L"0330\n";
+        SnaketailDesign += L"0000\n";
+
         AppleDesign += L"0000\n";
         AppleDesign += L"0440\n";
         AppleDesign += L"0440\n";
@@ -75,7 +82,7 @@ JPUBLIC:
         SnakeTail.push_back(snakeTail);
     }
 
-    JBOOL CheckIfApple(JINT CPos, JINT TPos, AllMove Move) {
+    JBOOL CheckIfApple(JINT CPos, JINT TPos) {
         JINT CPosition = GetCurrentPosition(CurrentApple.X, CurrentApple.Y);
         JIF(CPosition == TPos) JRETURN JTRUE;
         JFOR(JAUTO Snake : SnakeTail) {
@@ -97,20 +104,20 @@ JPUBLIC:
         JINT UPos = GetCurrentPosition(SnakeHead.X, SnakeHead.Y - 1);
         JINT DPos = GetCurrentPosition(SnakeHead.X, SnakeHead.Y + 1);
 
-        JIF (SnakeTail.size() < 50) {
-            JIF(((LPos > CPosition) || LPos == 0)  && CheckIfApple(CPosition, LPos, LEFT) && SnakeHead.CM != RIGHT) {
+        JIF (SnakeTail.size() < 40) {
+            JIF(((LPos > CPosition) || LPos == 0)  && CheckIfApple(CPosition, LPos) && SnakeHead.CM != RIGHT) {
                 Move.push_back(LPos);
                 AllMoveV.push_back(LEFT);
             }
-            JIF(((RPos > CPosition) || RPos == 0)  && CheckIfApple(CPosition, RPos, LEFT) && SnakeHead.CM != LEFT) {
+            JIF(((RPos > CPosition) || RPos == 0)  && CheckIfApple(CPosition, RPos) && SnakeHead.CM != LEFT) {
                 Move.push_back(RPos);
                 AllMoveV.push_back(RIGHT);
             }
-            JIF(((UPos > CPosition) || UPos == 0)  && CheckIfApple(CPosition, UPos, LEFT) && SnakeHead.CM != DOWN) {
+            JIF(((UPos > CPosition) || UPos == 0)  && CheckIfApple(CPosition, UPos) && SnakeHead.CM != DOWN) {
                 Move.push_back(UPos);
                 AllMoveV.push_back(UP);
             }
-            JIF(((DPos > CPosition) || DPos == 0)  && CheckIfApple(CPosition, DPos, LEFT) && SnakeHead.CM != UP) {
+            JIF(((DPos > CPosition) || DPos == 0)  && CheckIfApple(CPosition, DPos) && SnakeHead.CM != UP) {
                 Move.push_back(DPos);
                 AllMoveV.push_back(DOWN);
             }
@@ -162,7 +169,7 @@ JPUBLIC:
         JFLOAT XPosition = 30;
         JFLOAT YPosition = 10;
         SnakeSpeed -= ElapseTime;
-        JIF (SnakeSpeed <= 0 && GameStart) {
+        JIF (SnakeSpeed <= 0 && GameStart && Score < 395) {
             SnakeSpeed = CSnakeSpeed;
             MoveSnake(SnakeHead);
         }
@@ -172,15 +179,25 @@ JPUBLIC:
         JIF (CAPosition == CSPosition)
         {
             AddSnakeTail();
-            CurrentApple.X = rand() % MapWidth;
-            CurrentApple.Y = rand() % MapHeight;
+            JWHILE (JTRUE) {
+                JBOOL Cont = JTRUE;
+                CurrentApple.X = rand() % MapWidth;
+                CurrentApple.Y = rand() % MapHeight;
+                JFOR(JAUTO Snake : SnakeTail)
+                    JIF(Snake.X == CurrentApple.X && Snake.Y == CurrentApple.Y) {
+                        Cont = JFALSE;
+                        JBREAK;
+                    }
+                JIF (Cont) JBREAK;
+            }
+            Score++;
         }
         DrawBox({MapWidth * 4, MapHeight * 4, XPosition, YPosition}, PIXEL_SOLID);
         DrawCString({XPosition + CurrentApple.X * 4, YPosition + CurrentApple.Y * 4}, AppleDesign, JTRUE);
         DrawCString({XPosition + SnakeHead.X * 4, YPosition + SnakeHead.Y * 4}, SnakeHeadDesign, JTRUE);
 
         JFOR(JAUTO Snake : SnakeTail) {
-            DrawCString({XPosition + Snake.X * 4, YPosition + Snake.Y * 4}, SnakeHeadDesign, JTRUE);
+            DrawCString({XPosition + Snake.X * 4, YPosition + Snake.Y * 4}, SnaketailDesign, JTRUE);
         }
         DrawString({0, 0}, L"Snake Position: " + JTOWSTR(GetCurrentPosition(SnakeHead.X, SnakeHead.Y)), JTRUE);
         DrawString({0, 1}, L"Snake Position: " + JTOWSTR(GetCurrentPosition(CurrentApple.X, CurrentApple.Y)), JTRUE);
