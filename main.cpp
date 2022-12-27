@@ -1,10 +1,10 @@
 #include "JDM.h"
 
-JCLASS SnakeAI : JPUBLIC JWINDOW {
+JCLASS ConsoleExample : JPUBLIC JWINDOW {
 
 JPRIVATE:
 JPUBLIC:
-    SnakeAI() : JWINDOW("Snake AI", 140, 100, 5, 5) {}
+    ConsoleExample() : JWINDOW("ConsoleExample", 200, 120, 5, 5) {}
     JBOOL onUserCreate() {
         JRETURN JTRUE;
     }
@@ -16,7 +16,7 @@ JPUBLIC:
 
 JINT main()
 {
-    srand(std::time(0));
-    JMS<SnakeAI>()->Start();
+    srand(std::time(JNONE));
+    JMS<ConsoleExample>()->Start();
     JRETURN JFALSE;
 }
