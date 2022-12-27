@@ -1,26 +1,20 @@
 #include "JDM.h"
 
-JCLASS ConsoleExample : JPUBLIC JWINDOW {
+JCLASS ConsoleGameExample : JPUBLIC JWINDOW {
+
 JPRIVATE:
-
-
 JPUBLIC:
-    ConsoleExample() : JWINDOW("Console Example Test", 100, 80, 8, 8) { }
-    JBOOL onUserCreate() {
-        JRETURN JTRUE;
-    }
-
+    ConsoleGameExample() : JWINDOW("ConsoleGameExample", 140, 100, 5, 5) { }
+    JBOOL onUserCreate() { JRETURN JTRUE; }
     JBOOL onUserUpdate() {
-        Clear(BLANK, BG_CYAN);
-        JFOR(JFLOAT py = JNONE; py < GetHeight(); py++)
-            JFOR(JFLOAT px = JNONE; px < GetWidth(); px++)
-                Draw({px, py}, PIXEL_SOLID, rand() % 0x10, JTRUE);
+        Clear(BLANK, BG_BLACK);
         JRETURN JTRUE;
     }
 };
 
 JINT main()
 {
-    JMS<ConsoleExample>()->Start();
+    srand(std::time(0));
+    JMS<ConsoleGameExample>()->Start();
     JRETURN JFALSE;
 }

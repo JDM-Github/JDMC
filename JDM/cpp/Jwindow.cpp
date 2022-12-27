@@ -27,9 +27,9 @@ JWINDOW::JWINDOW(JCCHAR *Title, JCSHORT Width, JCSHORT Height, JCSHORT fontWidth
 }
 JWINDOW::~JWINDOW() {
     Clear();
+    WriteConsoleOutputW(JTHIS->hConsole, JTHIS->Screen, {JTHIS->GetWidth(), JTHIS->GetHeight()}, {0, 0}, &JTHIS->screenBufferCorners);
     SetConsoleWindowSize(JTHIS->originalConsole, 120, 50, 6, 10);
     SetConsoleActiveScreenBuffer(JTHIS->originalConsole);
-    WriteConsoleOutputW(JTHIS->originalConsole, JTHIS->Screen, {JTHIS->GetWidth(), JTHIS->GetHeight()}, {0, 0}, &JTHIS->screenBufferCorners);
     ShowScrollBar(GetConsoleWindow(), SB_VERT, JTRUE);
     SetConsoleCursorPosition(JTHIS->originalConsole, {0, 0});
     SetConsoleMode(JTHIS->hConsoleI, JTHIS->PrevMode);
@@ -59,7 +59,6 @@ JVOID JWINDOW::SetConsoleWindowSize(HANDLE console, JCSHORT Width, JCSHORT Heigh
 }
 JVOID JWINDOW::Start() {
     assert(JTHIS->onUserCreate());
-    srand(std::time(0));
     JTHIS->timePoint1 = std::chrono::system_clock::now();
     JTHIS->timePoint2 = std::chrono::system_clock::now();
     JRUNNING(JTHIS->Running)

@@ -1,4 +1,9 @@
+#include "fstream"
 #include "Jtypedef.h"
+
+#define PI 3.14159265358979323846
+#define PHI 1.618
+#define E
 
 JNAMESPACE JDM {
     JCONSTEXPR JBOOL collide_point(JCFLOAT x, JCFLOAT y, JCINT width, JCINT height, JCFLOAT x1, JCFLOAT y1) {
@@ -11,5 +16,13 @@ JNAMESPACE JDM {
         JIF(y1 + height1 < y2) JRETURN JFALSE;
         JIF(y1 > y2 + height2) JRETURN JFALSE;
         JRETURN JTRUE;
+    }
+    JBOOL checkExist(JCSTR &file)
+    {
+        std::ifstream ifile;
+        ifile.open(file);
+        JBOOL isExist = (ifile) ? JTRUE : JFALSE;
+        ifile.close();
+        JRETURN isExist;
     }
 };
