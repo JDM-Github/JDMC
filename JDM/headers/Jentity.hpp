@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Jwindow.h"
+#include "Jwindow.hpp"
 
 JCLASS BoxEntity {
 JPUBLIC:

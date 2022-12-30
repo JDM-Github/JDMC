@@ -7,6 +7,7 @@
 #include <ctime>
 #include <cassert>
 #include <cmath>
+#include <algorithm>
 #include <cstdlib>
-#include "Jenums.h"
-#include "Jconfig.h"
+#include "Jenums.hpp"
+#include "Jconfig.hpp"

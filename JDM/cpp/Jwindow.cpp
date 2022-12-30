@@ -1,4 +1,4 @@
-#include "Jwindow.h"
+#include "Jwindow.hpp"
 
 JWINDOW::JWINDOW(JCCHAR *Title, JCSHORT Width, JCSHORT Height, JCSHORT fontWidth, JCSHORT fontHeight)
     : WTitle(Title), ScreenWidth(std::min(Width, JSTATICC<JSHORT>(JSWMAX / fontWidth))), ScreenHeight(std::min(Height, JSTATICC<JSHORT>(JSHMAX / fontHeight))) {
@@ -99,8 +99,7 @@ JBOOL JWINDOW::gameLoop() {
 #endif
         JTHIS->keyboard.update();
 #if JESCTOEXIT
-        JIF(keyboard.Keys[JDM::Keys::J_ESC].isReleased)
-        JRETURN JFALSE;
+        JIF(keyboard.Keys[JDM::Keys::J_ESC].isReleased) JRETURN JFALSE;
 #endif
         JWCHAR updater[JMAX_HEX];
         swprintf(updater, JMAX_HEX, L"%s%s - FPS: %4.2f",
@@ -125,7 +124,7 @@ JVOID JWINDOW::SetColorIndex(JCSHORT Index, JDM::PixelRGB rgb)
     JTHIS->bufferInfo.ColorTable[Index];
     SetConsoleScreenBufferInfoEx(JTHIS->hConsole, &JTHIS->bufferInfo);
 }
-JVOID JWINDOW::DrawString(JCONST JDM::Pos2F Position, JCWSTR &str, JCBOOL AlphaR) {
+JVOID JWINDOW::DrawString(JCONST JDM::Pos2F Position, JCWSTR &str, JCSHORT Color, JCBOOL AlphaR) {
     JSHORT x_adder = JNONE, y_adder = JNONE;
     JFOR(JSHORT i = JNONE; i < str.size(); i++) {
         JIF(str[i] == JDM::NEWLINE) {
@@ -133,10 +132,24 @@ JVOID JWINDOW::DrawString(JCONST JDM::Pos2F Position, JCWSTR &str, JCBOOL AlphaR
             y_adder++;
             JCONTINUE;
         }
-        JTHIS->Draw({Position.X + x_adder, Position.Y + y_adder}, str[i], (JDM::FG_WHITE | JDM::FG_BLACK), AlphaR);
+        JTHIS->Draw({Position.X + x_adder, Position.Y + y_adder}, str[i], Color, AlphaR);
         x_adder++;
     }
 }
+
+JVOID JWINDOW::DrawACString(JCONST JDM::Pos2F Position, JCWSTR &str, JCSHORT Character, JCSHORT Color) {
+    JSHORT x_adder = JNONE, y_adder = JNONE;
+    JFOR(JSHORT i = JNONE; i < str.size(); i++) {
+        JIF(str[i] == JDM::NEWLINE) {
+            x_adder = JNONE;
+            y_adder++;
+            JCONTINUE;
+        }
+        JIF (str[i] != JDM::BLANK) JTHIS->Draw({Position.X + x_adder, Position.Y + y_adder}, Character, Color);
+        x_adder++;
+    }
+}
+
 JVOID JWINDOW::DrawCString(JCONST JDM::Pos2F Position, JCWSTR &str, JCBOOL AlphaR) {
     JSHORT x_adder = JNONE, y_adder = JNONE;
     JFOR(JSHORT i = JNONE; i < str.size(); i++) {
@@ -146,12 +159,11 @@ JVOID JWINDOW::DrawCString(JCONST JDM::Pos2F Position, JCWSTR &str, JCBOOL Alpha
             JCONTINUE;
         }
         x_adder++;
-        JIF(AlphaR && str[i] == JDM::BLANK)
-        JCONTINUE;
+        JIF(AlphaR && str[i] == JDM::BLANK) JCONTINUE;
         JTHIS->Draw({Position.X + x_adder - 1, Position.Y + y_adder}, JDM::PIXEL_SOLID, (JTHIS->getColor(str[i]) | JDM::BG_BLACK));
     }
 }
-JVOID JWINDOW::DrawString(JCONST JDM::Pos2F Position, JCWCHAR str[], JCBOOL AlphaR) {
+JVOID JWINDOW::DrawString(JCONST JDM::Pos2F Position, JCWCHAR str[], JCSHORT Color, JCBOOL AlphaR) {
     JSHORT x_adder = JNONE, y_adder = JNONE;
     JFOR(JSHORT i = JNONE; str[i]; i++) {
         JIF(str[i] == JDM::NEWLINE) {
@@ -159,7 +171,7 @@ JVOID JWINDOW::DrawString(JCONST JDM::Pos2F Position, JCWCHAR str[], JCBOOL Alph
             y_adder++;
             JCONTINUE;
         }
-        JTHIS->Draw({Position.X + x_adder, Position.Y + y_adder}, str[i], (JDM::FG_WHITE | JDM::BG_BLACK), AlphaR);
+        JTHIS->Draw({Position.X + x_adder, Position.Y + y_adder}, str[i], Color, AlphaR);
         x_adder++;
     }
 }

@@ -28,6 +28,7 @@
 #define JSTRUCT struct
 #define JCLASS class
 #define JENUM enum
+#define JUNION union
 #define JSWITCH switch
 #define JCASE case
 #define JDEFAULT default
@@ -36,6 +37,8 @@
 #define JVIRTUAL virtual
 #define JSTATIC static
 #define JNAMESPACE namespace
+#define JTEMPLATE template
+#define JTYPENAME typename
 #define JUSING using
 #define JAUTO auto
 #define JPUBLIC public
@@ -57,6 +60,12 @@ float typedef JFLOAT;
 double typedef JDOUBLE;
 char typedef JCHAR;
 wchar_t typedef JWCHAR;
+
+unsigned short typedef JUSHORT;
+unsigned int typedef JUINT;
+unsigned long typedef JULONG;
+unsigned long long typedef JULLONG;
+unsigned char typedef JUCHAR;
 
 std::string typedef JSTR;
 std::wstring typedef JWSTR;
@@ -95,6 +104,12 @@ const float typedef JCFLOAT;
 const double typedef JCDOUBLE;
 const char typedef JCCHAR;
 const wchar_t typedef JCWCHAR;
+
+const unsigned short typedef JCUSHORT;
+const unsigned int typedef JCUINT;
+const unsigned long typedef JCULONG;
+const unsigned long long typedef JCULLONG;
+const unsigned char typedef JCUCHAR;
 
 const std::string typedef JCSTR;
 const std::wstring typedef JCWSTR;

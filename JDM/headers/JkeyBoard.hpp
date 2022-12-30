@@ -1,14 +1,6 @@
 #pragma once
-#include "Jinclude.h"
+#include "Jinclude.hpp"
 
-JSTRUCT KeyState {
-    JBOOL isPressed = JFALSE;
-    JBOOL isHeld = JFALSE;
-    JBOOL isReleased = JFALSE;
-};
-JCONSTEXPR JBOOL isKeyHeld(JBOOL OldState, JBOOL NewState) { JRETURN(OldState && NewState); }
-JCONSTEXPR JBOOL isKeyPressed(JBOOL OldState, JBOOL NewState) { JRETURN(!OldState && NewState); }
-JCONSTEXPR JBOOL isKeyReleased(JBOOL OldState, JBOOL NewState) { JRETURN(OldState && !NewState); }
 JCLASS KeyBoard {
 JPUBLIC:
     KeyState Keys       [JMAX_HEX+1];

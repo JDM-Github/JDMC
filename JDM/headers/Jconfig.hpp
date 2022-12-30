@@ -2,7 +2,7 @@
 #ifndef __CONFIG__H
 #define __CONFIG__H
 
-#include "Jtypedef.h"
+#include "Jtypedef.hpp"
 
 #ifndef JSHMAX
     #define JSHMAX 680

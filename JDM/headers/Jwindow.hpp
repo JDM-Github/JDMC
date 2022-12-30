@@ -2,8 +2,8 @@
 #ifndef __WINDOWH__
 #define __WINDOWH__
 
-#include "Jinclude.h"
-#include "JkeyBoard.h"
+#include "Jinclude.hpp"
+#include "JkeyBoard.hpp"
 
 JCLASS JWINDOW {
 JPRIVATE:
@@ -37,8 +37,9 @@ JPUBLIC:
     JVOID Start();
     JVOID SetColorIndex(JCSHORT Index, JDM::PixelRGB rgb);
     JVOID Draw(JCONST JDM::Pos2F Position, JCSHORT Character = JDM::PIXEL_SOLID, JCSHORT Color = (JDM::FG_WHITE | JDM::BG_BLACK), JCBOOL AlphaR = JFALSE);
-    JVOID DrawString(JCONST JDM::Pos2F Position, JCWSTR &str, JCBOOL AlphaR = JFALSE);
-    JVOID DrawString(JCONST JDM::Pos2F Position, JCWCHAR str[], JCBOOL AlphaR = JFALSE);
+    JVOID DrawString(JCONST JDM::Pos2F Position, JCWSTR &str, JCSHORT Color, JCBOOL AlphaR = JFALSE);
+    JVOID DrawACString(JCONST JDM::Pos2F Position, JCWSTR &str, JCSHORT Character, JCSHORT Color);
+    JVOID DrawString(JCONST JDM::Pos2F Position, JCWCHAR str[], JCSHORT Color, JCBOOL AlphaR = JFALSE);
     JVOID DrawCString(JCONST JDM::Pos2F Position, JCWSTR &str, JCBOOL AlphaR = JFALSE);
     JVOID DrawHorizontal(JCONST JDM::Pos2F Position, JCINT Width, JCSHORT Character = JDM::PIXEL_SOLID, JCSHORT Color = (JDM::FG_WHITE | JDM::BG_BLACK), JCBOOL AlphaR = JFALSE);
     JVOID DrawVertical(JCONST JDM::Pos2F Position, JCINT Height, JCSHORT Character = JDM::PIXEL_SOLID, JCSHORT Color = (JDM::FG_WHITE | JDM::BG_BLACK), JCBOOL AlphaR = JFALSE);
