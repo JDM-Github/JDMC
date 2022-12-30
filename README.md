@@ -1,4 +1,4 @@
-# JDMC 1.1
+# JDMC 1.2
 
 ### This is my framework when doing Console Games.
 
@@ -6,7 +6,7 @@
 
 ```c++
 // Creating Console Window
-#include "JDM.h"
+#include "JDM.hpp"
 
 JCLASS ConsoleExample : JPUBLIC JWINDOW {
 
