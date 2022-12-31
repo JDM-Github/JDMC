@@ -23,10 +23,8 @@ JPRIVATE:
     JTIMEPOINT timePoint1;
     JTIMEPOINT timePoint2;
 
-JPROTECTED:
-    KeyBoard keyboard = KeyBoard();
-
 JPUBLIC:
+    KeyBoard keyboard = KeyBoard();
     POINT MousePos;
     JDM::Pos2D ExactMousePos = { 0, 0 };
 

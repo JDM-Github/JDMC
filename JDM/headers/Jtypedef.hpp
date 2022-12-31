@@ -46,9 +46,14 @@
 #define JPROTECTED protected
 #define JRUNNING while
 
+#define Random rand
+
 #define JSTATICC static_cast
 #define JDYNAMICC dynamic_cast
 #define JREINTERPRETC reinterpret_cast
+
+template <class T>
+using JFUNCTION = std::function<T>;
 
 void typedef JVOID;
 bool typedef JBOOL;

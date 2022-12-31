@@ -1,60 +1,74 @@
 #pragma once
 
 #include "Jwindow.hpp"
+#include "Jalgorithms.hpp"
 
 JCLASS BoxEntity {
 JPUBLIC:
-    JINT width, height;
-    JFLOAT x, y;
+    JFUNCTION<JVOID(JWINDOW *window)> hoverFunction = [](JWINDOW *window) {};
+    JFUNCTION<JVOID(JWINDOW *window)> touchDownFunction = [](JWINDOW *window) {};
+    JFUNCTION<JVOID(JWINDOW *window)> touchUpFunction = [](JWINDOW *window) {};
+    JFUNCTION<JVOID(JWINDOW *window)> touchHeldFunction = [](JWINDOW *window) {};
+    JDM::SizePosDF SPosition;
     JWSTR StringDesign;
     JWSTR ColorDesign;
 
 JPUBLIC:
-    BoxEntity(JCINT w, JCINT h, JCFLOAT px, JCFLOAT py)
-        : width(w), height(h), x(px), y(py) { JTHIS->FillDesign(); }
-    BoxEntity() : width(10), height(10), x(0), y(0) { JTHIS->FillDesign(); }
+    BoxEntity(JDM::SizePosDF position) : SPosition(position) { JTHIS->FillDesign(); }
+    BoxEntity() : SPosition({10, 10, 0, 0}) { JTHIS->FillDesign(); }
     ~BoxEntity() {}
+    JCONSTEXPR JBOOL collide_point(JCFLOAT px, JCFLOAT py) JCONST { JRETURN JDM::collide_point(SPosition, px, py); }
+    JCONSTEXPR JBOOL collide_box(JCONST JDM::SizePosDF position) JCONST { JRETURN JDM::collide_box(SPosition, position); }
 
-    JCONSTEXPR JBOOL collide_point(JCFLOAT px, JCFLOAT py) JCONST {
-        JRETURN(JTHIS->x <= px && px <= JTHIS->x + JTHIS->width && JTHIS->y <= py && py <= JTHIS->y + JTHIS->height); }
-    JCONSTEXPR JBOOL collide_box(JCINT width, JCINT height, JCFLOAT px, JCFLOAT py) JCONST {
-        JIF(JTHIS->x + JTHIS->width < px) JRETURN JFALSE;
-        JIF(JTHIS->x > px + width) JRETURN JFALSE;
-        JIF(JTHIS->y + JTHIS->height < py) JRETURN JFALSE;
-        JIF(JTHIS->y > py + height) JRETURN JFALSE;
-        JRETURN JTRUE;
-    }
     JVOID FillDesign(JCSHORT Character = JDM::PIXEL_SOLID, JCSHORT Color = (JDM::FG_WHITE | JDM::BG_BLACK)) {
         JTHIS->StringDesign.clear();
         JTHIS->ColorDesign.clear();
-        JFOR(JINT r = JNONE; r < JTHIS->height; r++)
-            JFOR(JINT c = JNONE; c < JTHIS->width; c++) {
+        JFOR(JINT r = JNONE; r < JTHIS->SPosition.Height; r++)
+            JFOR(JINT c = JNONE; c < JTHIS->SPosition.Width; c++) {
                 JTHIS->StringDesign += Character;
                 JTHIS->ColorDesign += Color;
         }
     }
-    JVOID Render(JWINDOW *Window, JCBOOL AlphaR = JFALSE) {
-        JINT x = (JINT)JTHIS->x;
-        JINT y = (JINT)JTHIS->y;
-        JFOR(JINT r = JNONE; r < JTHIS->height; r++)
-            JFOR(JINT c = JNONE; c < JTHIS->width; c++)
-                Window->Draw({JSTATICC<JFLOAT>(x + c), JSTATICC<JFLOAT>(y + r)}, JTHIS->StringDesign[r * JTHIS->width + c], JTHIS->ColorDesign[r * JTHIS->width + c], AlphaR);
+    JVOID CheckAllFunction(JWINDOW *window) {
+        JIF (collide_point(window->ExactMousePos.X, window->ExactMousePos.Y)) {
+            hoverFunction(window);
+            JIF(window->keyboard.Keys[JDM::Keys::J_MOUSE_LEFT].isPressed) 
+                touchDownFunction(window);
+            JIF(window->keyboard.Keys[JDM::Keys::J_MOUSE_LEFT].isHeld) 
+                touchHeldFunction(window);
+            JIF(window->keyboard.Keys[JDM::Keys::J_MOUSE_LEFT].isReleased) 
+                touchUpFunction(window);
+        }
     }
-    JVOID RenderC(JWINDOW *Window, JCSHORT Color = JDM::FG_WHITE, JCBOOL AlphaR = JFALSE)
+    JVOID Render(JWINDOW *Window, JCBOOL AlphaR = JFALSE) {
+        JINT x = JSTATICC<JINT>(JTHIS->SPosition.X);
+        JINT y = JSTATICC<JINT>(JTHIS->SPosition.Y);
+        JFOR(JINT r = JNONE; r < JTHIS->SPosition.Height; r++)
+            JFOR(JINT c = JNONE; c < JTHIS->SPosition.Width; c++)
+                Window->Draw({JSTATICC<JFLOAT>(x + c), JSTATICC<JFLOAT>(y + r)}, JTHIS->StringDesign[r * JTHIS->SPosition.Width + c], JTHIS->ColorDesign[r * JTHIS->SPosition.Width + c], AlphaR);
+        CheckAllFunction(Window);
+    }
+    JVOID RenderC(JWINDOW *window, JCBOOL AlphaR = JFALSE) {
+        window->DrawCString({SPosition.X, SPosition.Y}, JTHIS->ColorDesign, AlphaR);
+        CheckAllFunction(window);
+    }
+    JVOID RenderS(JWINDOW *Window, JCSHORT Color = JDM::FG_WHITE, JCBOOL AlphaR = JFALSE)
     {
-        JINT x = (JINT)JTHIS->x;
-        JINT y = (JINT)JTHIS->y;
-            JFOR(JINT r = JNONE; r < JTHIS->height; r++)
-                JFOR(JINT c = JNONE; c < JTHIS->width; c++)
-                    Window->Draw({JSTATICC<JFLOAT>(x + c), JSTATICC<JFLOAT>(y + r)}, JTHIS->StringDesign[r * JTHIS->width + c], Color, AlphaR);
+        JINT x = JSTATICC<JINT>(JTHIS->SPosition.X);
+        JINT y = JSTATICC<JINT>(JTHIS->SPosition.Y);
+            JFOR(JINT r = JNONE; r < JTHIS->SPosition.Height; r++)
+                JFOR(JINT c = JNONE; c < JTHIS->SPosition.Width; c++)
+                    Window->Draw({JSTATICC<JFLOAT>(x + c), JSTATICC<JFLOAT>(y + r)}, JTHIS->StringDesign[r * JTHIS->SPosition.Width + c], Color, AlphaR);
+        CheckAllFunction(Window);
     }
     JVOID RenderA(JWINDOW *Window, JCSHORT Character = JDM::PIXEL_SOLID, JCSHORT Color = (JDM::FG_WHITE | JDM::BG_BLACK), JCBOOL AlphaR = JFALSE)
     {
-        JINT x = (JINT)JTHIS->x;
-        JINT y = (JINT)JTHIS->y;
-        JFOR(JINT r = JNONE; r < JTHIS->height; r++)
-            JFOR(JINT c = JNONE; c < JTHIS->width; c++)
-                JIF(JTHIS->StringDesign[r * JTHIS->width + c] != L' ')
+        JINT x = JSTATICC<JINT>(JTHIS->SPosition.X);
+        JINT y = JSTATICC<JINT>(JTHIS->SPosition.Y);
+        JFOR(JINT r = JNONE; r < JTHIS->SPosition.Height; r++)
+            JFOR(JINT c = JNONE; c < JTHIS->SPosition.Width; c++)
+                JIF(JTHIS->StringDesign[r * JTHIS->SPosition.Width + c] != L' ')
                 Window->Draw({JSTATICC<JFLOAT>(x + c), JSTATICC<JFLOAT>(y + r)}, Character, Color, AlphaR);
+        CheckAllFunction(Window);
     }
 };

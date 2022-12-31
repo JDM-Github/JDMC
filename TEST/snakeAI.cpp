@@ -1,4 +1,4 @@
-#include "JDM.h"
+#include "JDM.hpp"
 
 JCLASS SnakeAI : JPUBLIC JWINDOW {
 JPRIVATE:

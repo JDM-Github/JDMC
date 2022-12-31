@@ -9,5 +9,6 @@
 #include <cmath>
 #include <algorithm>
 #include <cstdlib>
+#include <functional>
 #include "Jenums.hpp"
 #include "Jconfig.hpp"

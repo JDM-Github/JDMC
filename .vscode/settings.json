@@ -72,6 +72,7 @@
         "string_view": "cpp",
         "fstream": "cpp",
         "thread": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "functional": "cpp"
     }
 }
