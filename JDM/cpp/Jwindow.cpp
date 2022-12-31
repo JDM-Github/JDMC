@@ -1,7 +1,8 @@
 #include "Jwindow.hpp"
 
 JWINDOW::JWINDOW(JCCHAR *Title, JCSHORT Width, JCSHORT Height, JCSHORT fontWidth, JCSHORT fontHeight)
-    : WTitle(Title), ScreenWidth(std::min(Width, JSTATICC<JSHORT>(JSWMAX / fontWidth))), ScreenHeight(std::min(Height, JSTATICC<JSHORT>(JSHMAX / fontHeight))) {
+    : WTitle(Title), ScreenWidth(std::min(Width, JSTATICC<JSHORT>(JSWMAX / fontWidth))), ScreenHeight(std::min(Height, JSTATICC<JSHORT>(JSHMAX / fontHeight))), 
+        FontWidth(fontWidth), FontHeight(fontHeight) {
     JTHIS->originalConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     JTHIS->hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     JTHIS->hConsoleI = GetStdHandle(STD_INPUT_HANDLE);
@@ -9,11 +10,8 @@ JWINDOW::JWINDOW(JCCHAR *Title, JCSHORT Width, JCSHORT Height, JCSHORT fontWidth
     assert(SetConsoleActiveScreenBuffer(JTHIS->hConsole));
     assert(JTHIS->SetupWindow());
     MoveWindow(GetConsoleWindow(), 0, 0, 0, 0, JTRUE);
-
-#if JEDITABLE
     GetConsoleMode(JTHIS->hConsoleI, &JTHIS->PrevMode);
     SetConsoleMode(JTHIS->hConsoleI, ENABLE_EXTENDED_FLAGS | (JTHIS->PrevMode & ~ENABLE_QUICK_EDIT_MODE));
-#endif
 
     SetConsoleWindowSize(JTHIS->hConsole, ScreenWidth, ScreenHeight, fontWidth, fontHeight);
     ShowScrollBar(GetConsoleWindow(), SB_VERT, JFALSE);
@@ -93,18 +91,15 @@ JBOOL JWINDOW::gameLoop() {
     JTHIS->ElapseTime = elapseTime.count();
 
     JIF(JTHIS->onUserUpdate()) {
-#if JGETMOUSEPOS
         GetCursorPos(&JTHIS->MousePos);
         ScreenToClient(GetConsoleWindow(), &JTHIS->MousePos);
-#endif
+        JTHIS->ExactMousePos.X = JTHIS->MousePos.x / JTHIS->FontWidth;
+        JTHIS->ExactMousePos.Y = JTHIS->MousePos.y / JTHIS->FontHeight;
+
         JTHIS->keyboard.update();
-#if JESCTOEXIT
         JIF(keyboard.Keys[JDM::Keys::J_ESC].isReleased) JRETURN JFALSE;
-#endif
         JWCHAR updater[JMAX_HEX];
-        swprintf(updater, JMAX_HEX, L"%s%s - FPS: %4.2f",
-                 (JREMOVETITLE) ? "" : "JDMC: JDMaster Console Framework:    ", JTHIS->WTitle.c_str(),
-                 (JSHOWFPS) ? 1.0 / JTHIS->ElapseTime : JNONE);
+        swprintf(updater, JMAX_HEX, L"%s - FPS: %4.2f", JTHIS->WTitle.c_str(), 1.f / JTHIS->ElapseTime);
         SetConsoleTitleW(updater);
         WriteConsoleOutputW(JTHIS->hConsole, JTHIS->Screen, {JTHIS->GetWidth(), JTHIS->GetHeight()}, {JNONE, JNONE}, &JTHIS->screenBufferCorners);
         JRETURN JTRUE;
@@ -163,6 +158,20 @@ JVOID JWINDOW::DrawCString(JCONST JDM::Pos2F Position, JCWSTR &str, JCBOOL Alpha
         JTHIS->Draw({Position.X + x_adder - 1, Position.Y + y_adder}, JDM::PIXEL_SOLID, (JTHIS->getColor(str[i]) | JDM::BG_BLACK));
     }
 }
+JVOID JWINDOW::DrawCStringCycle(JCONST JDM::Pos2F Position, JCWSTR &str, JCBOOL AlphaR) {
+    JSHORT x_adder = JNONE, y_adder = JNONE;
+    JFOR(JSHORT i = JNONE; i < str.size(); i++) {
+        JIF(str[i] == JDM::NEWLINE) {
+            x_adder = JNONE;
+            y_adder++;
+            JCONTINUE;
+        }
+        x_adder++;
+        JIF(AlphaR && str[i] == JDM::BLANK) JCONTINUE;
+        JTHIS->DrawCycle({((Position.X < 0) ? GetWidth() - std::abs(Position.X) : Position.X) + x_adder - 1,
+                          ((Position.Y < 0) ? GetHeight() - std::abs(Position.Y) : Position.Y) + y_adder}, JDM::PIXEL_SOLID, (JTHIS->getColor(str[i]) | JDM::BG_BLACK));
+    }
+}
 JVOID JWINDOW::DrawString(JCONST JDM::Pos2F Position, JCWCHAR str[], JCSHORT Color, JCBOOL AlphaR) {
     JSHORT x_adder = JNONE, y_adder = JNONE;
     JFOR(JSHORT i = JNONE; str[i]; i++) {
@@ -207,6 +216,13 @@ JVOID JWINDOW::DrawBox(JCONST JDM::SizePosDF SizePosition, JCSHORT Character, JC
     JFOR(JINT i = JNONE; i < SizePosition.Height; i++)
         JFOR(JINT j = JNONE; j < SizePosition.Width; j++)
             JTHIS->Draw({SizePosition.X + j, SizePosition.Y + i}, Character, color, AlphaR);
+}
+JVOID JWINDOW::DrawCycle(JCONST JDM::Pos2F Position, JCSHORT Character, JCSHORT color, JCBOOL AlphaR) {
+    JIF(JSTATICC<JINT>(Position.X) >= JNONE && JSTATICC<JINT>(Position.Y) >= JNONE) {
+        JIF(AlphaR && Character == JDM::BLANK) JRETURN;
+        JTHIS->Screen[JTHIS->GetWidth() * (JSTATICC<JINT>(Position.Y) % JTHIS->GetHeight()) + (JSTATICC<JINT>(Position.X) % JTHIS->GetWidth())].Char.UnicodeChar = Character;
+        JTHIS->Screen[JTHIS->GetWidth() * (JSTATICC<JINT>(Position.Y) % JTHIS->GetHeight()) + (JSTATICC<JINT>(Position.X) % JTHIS->GetWidth())].Attributes = color;
+    }
 }
 JVOID JWINDOW::Draw(JCONST JDM::Pos2F Position, JCSHORT Character, JCSHORT color, JCBOOL AlphaR) {
     JIF(JSTATICC<JINT>(Position.X) >= JNONE && JSTATICC<JINT>(Position.X) < JTHIS->GetWidth() && JSTATICC<JINT>(Position.Y) >= JNONE && JSTATICC<JINT>(Position.Y) < JTHIS->GetHeight()) {

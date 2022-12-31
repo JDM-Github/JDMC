@@ -1,13 +1,16 @@
 #include <fstream>
 #include <algorithm>
-#include "Jtypedef.hpp"
+#include "Jenums.hpp"
 
 #define PI 3.14159265358979323846
 #define PHI 1.618
 
 JNAMESPACE JDM {
     JCONSTEXPR JBOOL collide_point(JCFLOAT x, JCFLOAT y, JCINT width, JCINT height, JCFLOAT x1, JCFLOAT y1) {
-        JRETURN(x <= x1 && x1 <= x + width && y <= y1 && y1 <= y + height);
+        JRETURN(x <= x1 && x1 < x + width && y <= y1 && y1 < y + height);
+    }
+    JCONSTEXPR JBOOL collide_point(JCFLOAT x, JCFLOAT y, JCINT width, JCINT height, JDM::Pos2D MousePosition) {
+        JRETURN(x <= MousePosition.X && MousePosition.X < x + width && y <= MousePosition.Y && MousePosition.Y < y + height);
     }
     JCONSTEXPR JBOOL collide_box(JCFLOAT x1, JCFLOAT y1, JCINT width1, JCINT height1,
                              JCFLOAT x2, JCFLOAT y2, JCINT width2, JCINT height2) {
