@@ -1,4 +1,5 @@
 #pragma once
+#include <ctime>
 #include <fstream>
 #include <algorithm>
 #include "Jenums.hpp"
@@ -6,7 +7,8 @@
 #define PI 3.14159265358979323846
 #define PHI 1.618
 
-JNAMESPACE JDM {
+JNAMESPACE JDM{
+    JVOID SetRandomSeed() { srand(std::time(JNONE)); }
     JCONSTEXPR JBOOL collide_point(JCONST JDM::SizePosDF position, JCFLOAT x1, JCFLOAT y1) {
         JRETURN(position.X <= x1 && x1 < position.X + position.Width && position.Y <= y1 && y1 < position.Y + position.Height);
     }

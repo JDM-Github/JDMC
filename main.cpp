@@ -2,10 +2,9 @@
 
 JCLASS ConsoleExample : JPUBLIC JWINDOW {
 JPRIVATE:
-    BoxEntity box = BoxEntity();
 
 JPUBLIC:
-    ConsoleExample() : JWINDOW("ConsoleExample", 30, 30, 15, 15) { }
+    ConsoleExample() : JWINDOW("ConsoleExample", 100, 100, 5, 5) { }
     JBOOL onUserCreate() {
         JRETURN JTRUE;
     }
@@ -17,7 +16,7 @@ JPUBLIC:
 };
 
 JINT main() {
-    srand(std::time(JNONE));
+    JDM::SetRandomSeed();
     JMS<ConsoleExample>()->Start();
     JRETURN JFALSE;
 }

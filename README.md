@@ -9,10 +9,10 @@
 #include "JDM.hpp"
 
 JCLASS ConsoleExample : JPUBLIC JWINDOW {
-
 JPRIVATE:
+
 JPUBLIC:
-    ConsoleExample() : JWINDOW("ConsoleExample", 100, 80, 10, 10) { }
+    ConsoleExample() : JWINDOW("ConsoleExample", 100, 100, 5, 5) { }
     JBOOL onUserCreate() {
         JRETURN JTRUE;
     }
@@ -23,9 +23,8 @@ JPUBLIC:
     }
 };
 
-JINT main()
-{
-    srand(std::time(JNONE));
+JINT main() {
+    JDM::SetRandomSeed();
     JMS<ConsoleExample>()->Start();
     JRETURN JFALSE;
 }

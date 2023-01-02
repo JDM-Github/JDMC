@@ -6,9 +6,11 @@
 JCLASS BoxEntity {
 JPUBLIC:
     JFUNCTION<JVOID(JWINDOW *window)> hoverFunction = [](JWINDOW *window) {};
+    JFUNCTION<JVOID(JWINDOW *window)> RemovehoverFunction = [](JWINDOW *window) {};
     JFUNCTION<JVOID(JWINDOW *window)> touchDownFunction = [](JWINDOW *window) {};
     JFUNCTION<JVOID(JWINDOW *window)> touchUpFunction = [](JWINDOW *window) {};
     JFUNCTION<JVOID(JWINDOW *window)> touchHeldFunction = [](JWINDOW *window) {};
+
     JDM::SizePosDF SPosition;
     JWSTR StringDesign;
     JWSTR ColorDesign;
@@ -38,6 +40,8 @@ JPUBLIC:
                 touchHeldFunction(window);
             JIF(window->keyboard.Keys[JDM::Keys::J_MOUSE_LEFT].isReleased) 
                 touchUpFunction(window);
+        } JELSE {
+            RemovehoverFunction(window);
         }
     }
     JVOID Render(JWINDOW *Window, JCBOOL AlphaR = JFALSE) {

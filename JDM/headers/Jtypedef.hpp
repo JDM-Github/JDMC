@@ -83,6 +83,10 @@ template <class T>
 using JUP = std::unique_ptr<T>;
 #define JUP std::make_unique
 
+template <class T, class S>
+using JPAIR = std::pair<T, S>;
+#define JMPAIR std::make_pair
+
 template <class T>
 using JSP = std::shared_ptr<T>;
 #define JMS std::make_shared

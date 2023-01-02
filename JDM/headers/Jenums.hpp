@@ -100,195 +100,61 @@ JNAMESPACE JDM {
         J_FSLASH, J_CBRACKET, J_QOUTE, J_PRTSC = 255,
     };
 
-    JENUM AlphabetEnum{
+    JENUM AsciiEnum{
         A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z,
+        a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z,
         SIMI_COLOR, N0, N1, N2, N3, N4, N5, N6, N7, N8, N9
     };
-    JCWSTR Alphabet[] = {
-        (L"XXXX\n"
-         L"X  X\n"
-         L"XXXX\n"
-         L"X  X\n"
-         L"X  X\n"),
-        (L"XXXX\n"
-         L"X  X\n"
-         L"XXXX\n"
-         L"X  X\n"
-         L"XXXX\n"),
-        (L"XXXX\n"
-         L"X   \n"
-         L"X   \n"
-         L"X   \n"
-         L"XXXX\n"),
-        (L"XXX \n"
-         L"X  X\n"
-         L"X  X\n"
-         L"X  X\n"
-         L"XXX \n"),
-        (L"XXXX\n"
-         L"X   \n"
-         L"XXX \n"
-         L"X   \n"
-         L"XXXX\n"),
-        (L"XXXX\n"
-         L"X   \n"
-         L"XXX \n"
-         L"X   \n"
-         L"X   \n"),
-        (L"XXXX\n"
-         L"X   \n"
-         L"X XX\n"
-         L"X  X\n"
-         L"XXXX\n"),
-        (L"X  X\n"
-         L"X  X\n"
-         L"XXXX\n"
-         L"X  X\n"
-         L"X  X\n"),
-        (L" XXX\n"
-         L"  X \n"
-         L"  X \n"
-         L"  X \n"
-         L" XXX\n"),
-        (L" XXX\n"
-         L"  X \n"
-         L"  X \n"
-         L"X X \n"
-         L"XXX \n"),
-        (L"X  X\n"
-         L"X X \n"
-         L"XX  \n"
-         L"X X \n"
-         L"X  X\n"),
-        (L"X   \n"
-         L"X   \n"
-         L"X   \n"
-         L"X   \n"
-         L"XXXX\n"),
-        (L"X  X\n"
-         L"XXXX\n"
-         L"X  X\n"
-         L"X  X\n"
-         L"X  X\n"),
-        (L"X  X\n"
-         L"XX X\n"
-         L"X XX\n"
-         L"X  X\n"
-         L"X  X\n"),
-        (L"XXXX\n"
-         L"X  X\n"
-         L"X  X\n"
-         L"X  X\n"
-         L"XXXX\n"),
-        (L"XXXX\n"
-         L"X  X\n"
-         L"XXXX\n"
-         L"X   \n"
-         L"X   \n"),
-        (L"XXXX\n"
-         L"X  X\n"
-         L"X  X\n"
-         L"X XX\n"
-         L"XXXX\n"),
-        (L"XXXX\n"
-         L"X  X\n"
-         L"XXX \n"
-         L"X  X\n"
-         L"X  X\n"),
-        (L"XXXX\n"
-         L"X   \n"
-         L"XXXX\n"
-         L"   X\n"
-         L"XXXX\n"),
-        (L" XXX\n"
-         L"  X \n"
-         L"  X \n"
-         L"  X \n"
-         L"  X \n"),
-        (L"X  X\n"
-         L"X  X\n"
-         L"X  X\n"
-         L"X  X\n"
-         L"XXXX\n"),
-        (L"X  X\n"
-         L"X  X\n"
-         L"X  X\n"
-         L"XXXX\n"
-         L" XX \n"),
-        (L"X  X\n"
-         L"X  X\n"
-         L"X  X\n"
-         L"XXXX\n"
-         L"X  X\n"),
-        (L"X  X\n"
-         L"X  X\n"
-         L" XX \n"
-         L"X  X\n"
-         L"X  X\n"),
-        (L"X  X\n"
-         L"XXXX\n"
-         L" XX \n"
-         L"  X \n"
-         L"  X \n"),
-        (L"XXXX\n"
-         L"  X \n"
-         L" X  \n"
-         L"X   \n"
-         L"XXXX\n"),
-        (L"    \n"
-         L"  X \n"
-         L"    \n"
-         L"  X \n"
-         L"    \n"),
-        (L" XX \n"
-         L"X  X\n"
-         L"X  X\n"
-         L"X  X\n"
-         L" XX \n"),
-        (L" XX \n"
-         L"  X \n"
-         L"  X \n"
-         L"  X \n"
-         L" XXX\n"),
-        (L" XX \n"
-         L"X  X\n"
-         L"  X \n"
-         L" X  \n"
-         L"XXXX\n"),
-        (L" XX \n"
-         L"X  X\n"
-         L"  X \n"
-         L"X  X\n"
-         L" XX \n"),
-        (L"  XX\n"
-         L" X X\n"
-         L"XXXX\n"
-         L"   X\n"
-         L"   X\n"),
-        (L"XXXX\n"
-         L"X   \n"
-         L"XXX \n"
-         L"   X\n"
-         L"XXX \n"),
-        (L" XXX\n"
-         L"X   \n"
-         L"XXX \n"
-         L"X  X\n"
-         L" XX \n"),
-        (L"XXXX\n"
-         L"   X\n"
-         L"  X \n"
-         L" X  \n"
-         L" X  \n"),
-        (L" XX \n"
-         L"X  X\n"
-         L" XX \n"
-         L"X  X\n"
-         L" XX \n"),
-        (L" XX \n"
-         L"X  X\n"
-         L" XXX\n"
-         L"   X\n"
-         L"XXX \n"),
+
+    JCWSTR NumberWStr[] =  {
+        (L" 00 \n"
+         L"00 0\n"
+         L"00 0\n"
+         L" 00 \n"),
+        
+        (L"000 \n"
+         L" 00 \n"
+         L" 00 \n"
+         L" 00 \n"),
+
+        (L"000 \n"
+         L"  0 \n"
+         L"0   \n"
+         L"000 \n"),
+
+        (L"0000\n"
+         L" 000\n"
+         L"  00\n"
+         L"0000\n"),
+
+        (L"0  0\n"
+         L"0  0\n"
+         L"0000\n"
+         L"   0\n"),
+
+        (L"000 \n"
+         L"0   \n"
+         L"  0 \n"
+         L"000 \n"),
+
+        (L"0000\n"
+         L"0   \n"
+         L"0 00\n"
+         L"0000\n"),
+
+        (L"000 \n"
+         L"  0 \n"
+         L" 0  \n"
+         L"0   \n"),
+
+        (L"000 \n"
+         L"0 00\n"
+         L"00 0\n"
+         L" 000\n"),
+
+        (L"0000\n"
+         L"00 0\n"
+         L"   0\n"
+         L"0000\n"),
     };
 };

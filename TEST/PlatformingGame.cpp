@@ -7,8 +7,8 @@ JPRIVATE:
     JWSTR LevelMap;
     JINT LevelWidth;
     JINT LevelHeight;
-    JINT TileWidth = 12;
-    JINT TileHeight = 12;
+    JINT TileWidth = 13;
+    JINT TileHeight = 16;
     JINT TileVisibilityX;
     JINT TileVisibilityY;
 
@@ -17,25 +17,44 @@ JPRIVATE:
     JFLOAT CameraY = 0.f;
     Entity Player = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
 
+    JWSTR MarioDesign;
+
 JPUBLIC:
     PlatformGames() : JWINDOW("Basic Platform Game", 200, 120, 5, 5) { }
     JBOOL onUserCreate() {
         LevelWidth = 100;
         LevelHeight = 10;
 
-        LevelMap += L"                                                                                                    ";
-        LevelMap += L"                                                                                                    ";
-        LevelMap += L"                                                                                                    ";
-        LevelMap += L"                                                                                                    ";
-        LevelMap += L"                                                                                                    ";
-        LevelMap += L"                                                                                                    ";
-        LevelMap += L"                                                                                                    ";
-        LevelMap += L"             #                                                                                      ";
-        LevelMap += L"            ###                                                                                     ";
+        LevelMap += L"      ### ###             ###                                                                       ";
+        LevelMap += L"       #  #  #             ##                                                                       ";
+        LevelMap += L"     # #  #  #              #                                                                       ";
+        LevelMap += L"     ###  ###               #                                                                       ";
+        LevelMap += L"                            #                                                                       ";
+        LevelMap += L"               #####                                                                                ";
+        LevelMap += L"              #    #        ####                                                                    ";
+        LevelMap += L"             #      #       #   #                                                                   ";
+        LevelMap += L"            ###          ####    #                                                                  ";
         LevelMap += L"####################################################################################################";
 
         TileVisibilityX = GetWidth() / TileWidth;
         TileVisibilityY = GetHeight() / TileHeight;
+
+        MarioDesign += L"   444444    \n";
+        MarioDesign += L"  4444444444 \n";
+        MarioDesign += L"  EEEE66E6   \n";
+        MarioDesign += L" EE6E666E666 \n";
+        MarioDesign += L" EE6EE666E666\n";
+        MarioDesign += L" EEE6666EEEE \n";
+        MarioDesign += L"   66666666  \n";
+        MarioDesign += L"  EEE4EEE    \n";
+        MarioDesign += L" EEEE4EE4EEE \n";
+        MarioDesign += L"EEEEE4444EEEE\n";
+        MarioDesign += L"666E464464E66\n";
+        MarioDesign += L"6666444444666\n";
+        MarioDesign += L"6664444444466\n";
+        MarioDesign += L"  4444 4444  \n";
+        MarioDesign += L" EEEE   EEEE \n";
+        MarioDesign += L"EEEEE   EEEEE\n";
         JRETURN JTRUE;
     }
 
@@ -117,7 +136,7 @@ JPUBLIC:
                 }
             }
 
-        DrawBox({TileWidth, TileHeight, (Player.X - OffsetX) * TileWidth, (Player.Y - OffsetY) * TileHeight}, PIXEL_SOLID, FG_DARK_BLUE, JTRUE);
+        DrawCString({(Player.X - OffsetX) * TileWidth, (Player.Y - OffsetY) * TileHeight}, MarioDesign, JTRUE);
         JRETURN JTRUE;
     }
 };
