@@ -69,5 +69,7 @@ JNAMESPACE JDM{
         JFLOAT SecondValue = (9.0f / (9 + (Random() % 100)));
         JRETURN FirstValue - SecondValue;
     }
+
+    
 };
 

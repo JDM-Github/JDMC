@@ -24,6 +24,9 @@ compile:
 exec:
 	@./main.exe
 
+sprite:
+	@./spriteMaker/sprite.exe
+
 start:
 ifeq (, $(wildcard src/main.cpp))
 	@echo F|xcopy $(MAIN) "main2.cpp" /Y > nul

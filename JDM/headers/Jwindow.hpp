@@ -5,6 +5,7 @@
 #include "Jinclude.hpp"
 #include "Jenums.hpp"
 #include "JkeyBoard.hpp"
+#include <fstream>
 
 JCLASS JWINDOW {
 JPRIVATE:
@@ -49,6 +50,48 @@ JPUBLIC:
     JVOID DrawTriangle(JCONST JDM::Pos6F Position, JCSHORT Character = JDM::PIXEL_SOLID, JCSHORT Color = (JDM::FG_WHITE | JDM::BG_BLACK), JCBOOL AlphaR = JFALSE);
     JVOID DrawBox(JCONST JDM::SizePosDF SizePosition, JCSHORT Character = JDM::PIXEL_SOLID, JCSHORT Color = (JDM::FG_WHITE | JDM::BG_BLACK), JCBOOL AlphaR = JFALSE);
 
+    JVOID GetSpriteString(JWSTR &string, JCCHAR *spriteName) {
+        std::fstream File(spriteName, std::ios::in);
+        assert(File);
+        string.clear();
+        JBOOL Start = JFALSE;
+        JBOOL CWidth = JFALSE;
+        JINT Navigate = 1;
+        JSTR WidthStr;
+        JCHAR Character;
+        JINT LineNav = 0;
+        JINT Width = 0;
+        JWHILE (JTRUE) {
+		    File >> Character;
+		    JIF (Start && Character == '}') JBREAK;
+            JIF (Start && Character != '}') {
+                JIF (Navigate > Width) {
+                    string += '\n';
+                    Navigate = 1;
+                }
+                string += (Character == 'S') ? ' ' : Character;
+                Navigate++;
+                JCONTINUE;
+            }
+            JELSE JIF (Character == '{') {
+                Width = std::stoi(WidthStr);
+                Start = JTRUE; JCONTINUE;
+            }
+            JELSE JIF (Character != '\r') {
+                JIF (CWidth || (LineNav == 0 && Character == ':')) {
+                    JIF(!CWidth) CWidth = JTRUE;
+                    JELSE WidthStr += Character;
+                } JCONTINUE;
+            } JELSE {
+                CWidth = JFALSE;
+                LineNav = 1;
+            }
+            Start = JFALSE;
+        }
+        File.close();
+    }
+
+
     JCONSTEXPR JDM::Color getColor(JCSHORT Index) JCONST {
         JSWITCH (Index) {
         JCASE L'0': JRETURN JDM::FG_BLACK;
@@ -64,8 +107,8 @@ JPUBLIC:
         JCASE L'A': JRETURN JDM::FG_DARK_GREEN;
         JCASE L'B': JRETURN JDM::FG_DARK_CYAN;
         JCASE L'C': JRETURN JDM::FG_DARK_RED;
-        JCASE L'D': JRETURN JDM::FG_DARK_MAGENTA;
-        JCASE L'E': JRETURN JDM::FG_DARK_YELLOW;
+        JCASE L'D': JRETURN JDM::FG_SKIN;
+        JCASE L'E': JRETURN JDM::FG_DARK_SKIN;
         JDEFAULT: JRETURN JDM::FG_WHITE;
         }
     }

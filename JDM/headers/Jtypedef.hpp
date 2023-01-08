@@ -25,6 +25,7 @@
 #define JTHIS this
 #define JDELETE delete
 #define JWHILE while
+#define JDO do
 #define JSTRUCT struct
 #define JCLASS class
 #define JENUM enum

@@ -118,8 +118,8 @@ JPUBLIC:
 
         CameraX = Player.X;
         CameraY = Player.Y;
-        JFLOAT OffsetX = CameraX - (JFLOAT)TileVisibilityX / 2.0f;
-        JFLOAT OffsetY = CameraY - (JFLOAT)TileVisibilityY / 2.0f;
+        JFLOAT OffsetX = CameraX - (JFLOAT)TileVisibilityX / 2.f;
+        JFLOAT OffsetY = CameraY - (JFLOAT)TileVisibilityY / 2.f;
         JIF(OffsetX < 0) OffsetX = 0;
         JIF(OffsetY < 0) OffsetY = 0;
         JIF(OffsetX > LevelWidth - TileVisibilityX) OffsetX = LevelWidth - TileVisibilityX;

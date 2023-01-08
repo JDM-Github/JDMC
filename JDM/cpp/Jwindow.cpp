@@ -3,19 +3,18 @@
 JWINDOW::JWINDOW(JCCHAR *Title, JCSHORT Width, JCSHORT Height, JCSHORT fontWidth, JCSHORT fontHeight)
     : WTitle(Title), ScreenWidth(std::min(Width, JSTATICC<JSHORT>(JSWMAX / fontWidth))), ScreenHeight(std::min(Height, JSTATICC<JSHORT>(JSHMAX / fontHeight))), 
         FontWidth(fontWidth), FontHeight(fontHeight) {
+    assert(JTHIS->SetupWindow());
     JTHIS->originalConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     JTHIS->hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     JTHIS->hConsoleI = GetStdHandle(STD_INPUT_HANDLE);
     JTHIS->bufferInfo.cbSize = sizeof(CONSOLE_SCREEN_BUFFER_INFOEX);
     assert(SetConsoleActiveScreenBuffer(JTHIS->hConsole));
-    assert(JTHIS->SetupWindow());
     MoveWindow(GetConsoleWindow(), 0, 0, 0, 0, JTRUE);
     GetConsoleMode(JTHIS->hConsoleI, &JTHIS->PrevMode);
     SetConsoleMode(JTHIS->hConsoleI, ENABLE_EXTENDED_FLAGS | (JTHIS->PrevMode & ~ENABLE_QUICK_EDIT_MODE));
-
     SetConsoleWindowSize(JTHIS->hConsole, ScreenWidth, ScreenHeight, fontWidth, fontHeight);
-    ShowScrollBar(GetConsoleWindow(), SB_VERT, JFALSE);
 
+    ShowScrollBar(GetConsoleWindow(), SB_VERT, JFALSE);
     GetConsoleCursorInfo(JTHIS->hConsole, &JTHIS->CursorInfo);
     JTHIS->CursorInfo.dwSize = 100;
     JTHIS->CursorInfo.bVisible = JFALSE;
@@ -32,7 +31,7 @@ JWINDOW::~JWINDOW() {
     SetConsoleCursorPosition(JTHIS->originalConsole, {0, 0});
     SetConsoleMode(JTHIS->hConsoleI, JTHIS->PrevMode);
 
-    JTHIS->CursorInfo.dwSize = JNONE;
+    JTHIS->CursorInfo.dwSize = 100;
     JTHIS->CursorInfo.bVisible = JTRUE;
     SetConsoleCursorInfo(JTHIS->hConsole, &JTHIS->CursorInfo);
     SetConsoleTextAttribute(JTHIS->originalConsole, JDM::FG_WHITE | JDM::BG_BLACK);
@@ -64,7 +63,6 @@ JVOID JWINDOW::Start() {
     JTHIS->Running = JTHIS->gameLoop();
 }
 JBOOL JWINDOW::SetupWindow() {
-#if JSET_COLOR
     JTHIS->SetColorIndex(0x0, COLORINDEX0);
     JTHIS->SetColorIndex(0x1, COLORINDEX1);
     JTHIS->SetColorIndex(0x2, COLORINDEX2);
@@ -81,7 +79,6 @@ JBOOL JWINDOW::SetupWindow() {
     JTHIS->SetColorIndex(0xD, COLORINDEXD);
     JTHIS->SetColorIndex(0xE, COLORINDEXE);
     JTHIS->SetColorIndex(0xF, COLORINDEXF);
-#endif
     JRETURN JTRUE;
 }
 JBOOL JWINDOW::gameLoop() {
