@@ -7,5 +7,6 @@
 
 #if JAUTONS
     JUSING JNAMESPACE JDM;
+    JUSING JNAMESPACE std;
     JUSING JNAMESPACE std::chrono_literals;
 #endif

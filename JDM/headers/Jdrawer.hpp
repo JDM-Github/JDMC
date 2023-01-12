@@ -84,5 +84,13 @@ JNAMESPACE JDM {
                             window->Draw({Position.X + radius + dx - 1, Position.Y + radius + dy - 1}, Character, OutColor, AlphaR);
                     }
             }
+
+            JSTATIC JVOID DisplayEdges(JWINDOW *window, JVECTOR<JDM::Edges> VectorEdges) {
+                JFOR (JAUTO &Edge : VectorEdges) {
+                    window->DrawLine({Edge.SX, Edge.SY, Edge.EX, Edge.EY}, PIXEL_SOLID, FG_RED, JTRUE);
+                    window->Draw({Edge.SX, Edge.SY}, PIXEL_SOLID, FG_WHITE);
+                    window->Draw({Edge.EX, Edge.EY}, PIXEL_SOLID, FG_WHITE);
+                }
+        }
     };
 };

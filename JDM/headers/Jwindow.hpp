@@ -91,6 +91,8 @@ JPUBLIC:
         File.close();
     }
 
+    JCONSTEXPR JINT GetMouseX() { JRETURN JTHIS->MousePos.x / JTHIS->FontWidth; }
+    JCONSTEXPR JINT GetMouseY() { JRETURN JTHIS->MousePos.y / JTHIS->FontHeight; }
 
     JCONSTEXPR JDM::Color getColor(JCSHORT Index) JCONST {
         JSWITCH (Index) {
@@ -121,6 +123,7 @@ JPROTECTED:
     JCONSTEXPR JSHORT GetWidth() JCONST { JRETURN JTHIS->ScreenWidth; }
     JCONSTEXPR JSHORT GetHeight() JCONST { JRETURN JTHIS->ScreenHeight; }
     JVOID Clear(JCSHORT Character = JDM::BLANK, JCSHORT Color = (JDM::FG_BLACK | JDM::BG_BLACK));
+    JCONSTEXPR JINT GetMouseIndex(JINT BlockWidth, JINT Pitch) { JRETURN (GetMouseY() / BlockWidth) * Pitch + (GetMouseX() / BlockWidth); }
 
 JPRIVATE:
     JVOID SetConsoleWindowSize(HANDLE console, JCSHORT Width, JCSHORT Height, JCSHORT FontWidth, JCSHORT FontHeight);

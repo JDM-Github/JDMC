@@ -7,7 +7,70 @@
 #define PI 3.14159265358979323846
 #define PHI 1.618
 
+#define NORTH 0
+#define SOUTH 1
+#define WEST 2
+#define EAST 3
+
 JNAMESPACE JDM{
+
+    JSTRUCT Edges { JFLOAT SX, SY, EX, EY; };
+    JSTRUCT Cell {
+        JINT EdgeId[4];
+        JBOOL EdgeExist[4];
+        JBOOL Exist = JFALSE;
+    };
+
+    JVOID AddEdge(JVECTOR<JDM::Edges> &VectorEdges, JDM::Cell *World, JINT Index, JINT Dir, JINT RDir, JINT CONSTANT,
+        JINT XAdd, JINT YAdd, JINT BWidth, JFLOAT SX, JFLOAT SY, JFLOAT EX, JFLOAT EY) {
+        JIF (!World[RDir].Exist) {
+            JIF (World[Dir].EdgeExist[CONSTANT]) {
+                VectorEdges[World[Dir].EdgeId[CONSTANT]].EX += XAdd;
+                VectorEdges[World[Dir].EdgeId[CONSTANT]].EY += YAdd;
+                World[Index].EdgeId[CONSTANT] = World[Dir].EdgeId[CONSTANT];
+                World[Index].EdgeExist[CONSTANT] = JTRUE;
+            } JELSE {
+                Edges edge = {SX, SY, EX, EY};
+                JINT edgeId = VectorEdges.size();
+                VectorEdges.push_back(edge);
+                World[Index].EdgeId[CONSTANT] = edgeId;
+                World[Index].EdgeExist[CONSTANT] = JTRUE;
+            }
+        }
+    }
+
+    JVOID ConvertTileMapToPolyMap(JVECTOR<JDM::Edges> &VectorEdges, JDM::Cell *World, JINT SX, JINT SY, JINT W, JINT H, JINT BWidth, JINT Pitch) {
+        VectorEdges.clear();
+        JFOR(JINT x = 0; x < W; x++) 
+        JFOR(JINT y = 0; y < H; y++) 
+            JFOR(JINT i = 0; i < 4; i++) {
+                JINT Index = (y + SY) * Pitch + (x + SX);
+                World[Index].EdgeExist[i] = JFALSE;
+                World[Index].EdgeId[i] = 0;
+            }
+        JFOR(JINT x = 1; x < W - 1; x++) 
+        JFOR(JINT y = 1; y < H - 1; y++) {
+            JINT Index =  (y + SY) * Pitch + (x + SX);
+            JINT North =  (y + SY - 1) * Pitch + (x + SX);
+            JINT South =  (y + SY + 1) * Pitch + (x + SX);
+            JINT West =  (y + SY) * Pitch + (x + SX - 1) ;
+            JINT East =  (y + SY) * Pitch + (x + SX + 1);
+
+            JIF (World[Index].Exist) {
+                JDM::AddEdge(VectorEdges, World, Index, North, West, WEST, 0, BWidth, BWidth,
+                        (SX + x) * BWidth, (SY + y) * BWidth, ((SX + x) * BWidth), ((SY + y) * BWidth) + BWidth);
+                JDM::AddEdge(VectorEdges, World, Index, North, East, EAST, 0, BWidth, BWidth,
+                        (SX + x + 1) * BWidth, (SY + y) * BWidth, ((SX + x + 1) * BWidth), ((SY + y) * BWidth) + BWidth);
+                JDM::AddEdge(VectorEdges, World, Index, West, North, NORTH, BWidth, 0, BWidth,
+                        (SX + x) * BWidth, (SY + y) * BWidth, ((SX + x) * BWidth) + BWidth, ((SY + y) * BWidth));
+                JDM::AddEdge(VectorEdges, World, Index, West, South, SOUTH, BWidth, 0, BWidth,
+                        (SX + x) * BWidth, (SY + y + 1) * BWidth, ((SX + x) * BWidth) + BWidth, ((SY + y + 1) * BWidth));
+            }
+        }
+    }
+
+    JCONSTEXPR JINT GetIndex(JINT x, JINT y, JINT Pitch) { JRETURN x + (y * Pitch); }
+
     JVOID SetRandomSeed() { srand(std::time(JNONE)); }
     JCONSTEXPR JBOOL collide_point(JCONST JDM::SizePosDF position, JCFLOAT x1, JCFLOAT y1) {
         JRETURN(position.X <= x1 && x1 < position.X + position.Width && position.Y <= y1 && y1 < position.Y + position.Height);
@@ -54,6 +117,28 @@ JNAMESPACE JDM{
     }
 
     JTEMPLATE<JCLASS T>
+    T Max(JVECTOR<T> Value) {
+        T MaxValue = Value[0];
+        JFOR(JINT i = 0; i < Value.size(); i++) {
+            JIF(MaxValue < Value[i]) MaxValue = Value[i];
+        }
+        JRETURN MaxValue;
+    }
+
+    JTEMPLATE<JCLASS T>
+    JINT MaxIndex(JVECTOR<T> Value) {
+        JINT Index = 0;
+        T MaxValue = Value[0];
+        JFOR(JINT i = 0; i < Value.size(); i++) {
+            JIF(MaxValue < Value[i]) {
+                Index = i;
+                MaxValue = Value[i];
+            }
+        }
+        JRETURN Index;
+    }
+
+    JTEMPLATE<JCLASS T>
     JFLOAT Min(T maximumValue) { JRETURN maximumValue; }
     JTEMPLATE<JCLASS T, JCLASS ... Args>
     JFLOAT Min(T firstValue, T secondValue, Args... args) {
@@ -70,6 +155,20 @@ JNAMESPACE JDM{
         JRETURN FirstValue - SecondValue;
     }
 
-    
+    JTEMPLATE<JCLASS T>
+    JBOOL Any(T value) { JRETURN value; }
+    JTEMPLATE <JCLASS First, JCLASS ... Args>
+    JBOOL Any(First first, Args... args) {
+        JIF(first) JRETURN JTRUE;
+        JRETURN Any(args...);
+    }
+
+    JTEMPLATE<JCLASS T>
+    JBOOL All(T value) { JRETURN value; }
+    JTEMPLATE <JCLASS First, JCLASS ... Args>
+    JBOOL All(First first, Args... args) {
+        JIF(first) JRETURN All(args...);
+        JRETURN JFALSE;
+    }
 };
 
