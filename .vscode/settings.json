@@ -1,5 +1,5 @@
 {
-    "workbench.colorTheme": "Dark C++ Theme",
+    "workbench.colorTheme": "JDM",
     "files.associations": {
         "algorithm": "cpp",
         "atomic": "cpp",
@@ -73,6 +73,9 @@
         "fstream": "cpp",
         "thread": "cpp",
         "set": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "stdio.h": "c",
+        "endline.h": "c",
+        "stdbool.h": "c"
     }
 }

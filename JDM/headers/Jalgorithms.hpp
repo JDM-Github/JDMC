@@ -21,6 +21,93 @@ JNAMESPACE JDM{
         JBOOL Exist = JFALSE;
     };
 
+    JSTRUCT Node {
+        JBOOL Obstacle = JFALSE;
+        JBOOL Visited = JFALSE;
+        JFLOAT GlobalGoal;
+        JFLOAT LocalGoal;
+        JINT X, Y;
+        JVECTOR<Node *> VectorNeighbors;
+        Node *Parent;
+    };
+
+    JCONSTEXPR JINT GetIndex(JINT x, JINT y, JINT Pitch) { JRETURN x + (y * Pitch); }
+
+    JVOID GetConnection(JINT MapWidth, JINT MapHeight, JDM::Node *Nodes, JBOOL Diagonal = JFALSE) {
+        JFOR (JINT y = 0; y < MapHeight; y++)
+            JFOR (JINT x = 0; x < MapWidth; x++) {
+                JINT Index = JDM::GetIndex(x, y, MapWidth);
+                Nodes[Index].VectorNeighbors.clear();
+                JIF(y > 0) Nodes[Index].VectorNeighbors.push_back(&Nodes[JDM::GetIndex(x, y - 1, MapWidth)]);
+                JIF(x > 0) Nodes[Index].VectorNeighbors.push_back(&Nodes[JDM::GetIndex(x - 1, y, MapWidth)]);
+                JIF(y < MapHeight-1) Nodes[Index].VectorNeighbors.push_back(&Nodes[JDM::GetIndex(x, y + 1, MapWidth)]);
+                JIF(x < MapWidth-1) Nodes[Index].VectorNeighbors.push_back(&Nodes[JDM::GetIndex(x + 1, y, MapWidth)]);
+            
+                JIF (Diagonal) {
+                    JIF(y > 0 && x > 0) Nodes[Index].VectorNeighbors.push_back(&Nodes[JDM::GetIndex(x - 1, y - 1, MapWidth)]);
+                    JIF(y > 0 && x < MapWidth-1) Nodes[Index].VectorNeighbors.push_back(&Nodes[JDM::GetIndex(x + 1, y - 1, MapWidth)]);
+                    JIF(y < MapHeight-1 && x > 0) Nodes[Index].VectorNeighbors.push_back(&Nodes[JDM::GetIndex(x - 1, y + 1, MapWidth)]);
+                    JIF(y < MapWidth-1 && x < MapWidth - 1) Nodes[Index].VectorNeighbors.push_back(&Nodes[JDM::GetIndex(x + 1, y + 1, MapWidth)]);
+                }
+            }
+    }
+
+    JVOID SetupNode(JINT MapWidth, JINT MapHeight, JDM::Node *Nodes) {
+        JFOR (JINT y = 0; y < MapHeight; y++)
+            JFOR (JINT x = 0; x < MapWidth; x++) {
+                JINT Index = GetIndex(x, y, MapWidth);
+                Nodes[Index].X = x;
+                Nodes[Index].Y = y;
+                Nodes[Index].Visited = JFALSE;
+                Nodes[Index].Obstacle = JFALSE;
+                Nodes[Index].Parent = nullptr;
+            }
+        
+        JDM::GetConnection(MapWidth, MapHeight, Nodes);
+    }
+
+    JVOID Solve_AStar(JINT MapWidth, JINT MapHeight, JDM::Node *Nodes, JDM::Node *NodeStart, JDM::Node *NodeEnd) {
+        JFOR (JINT y = 0; y < MapHeight; y++)
+            JFOR (JINT x = 0; x < MapWidth; x++) {
+                JINT Index = GetIndex(x, y, MapWidth);
+                Nodes[Index].Visited = JFALSE;
+                Nodes[Index].GlobalGoal = INFINITY;
+                Nodes[Index].LocalGoal = INFINITY;
+                Nodes[Index].Parent = nullptr;
+            }
+        JAUTO Distance = [](Node *A, Node *B) { JRETURN sqrtf((A->X - B->X)*(A->X - B->X) + (A->Y - B->Y)*(A->Y - B->Y)); };
+        JAUTO Heuristic = [Distance](Node *A, Node *B) { JRETURN Distance(A, B); };
+
+        Node *CurrentNode = NodeStart;
+        NodeStart->LocalGoal = 0.f;
+        NodeStart->GlobalGoal = Heuristic(NodeStart, NodeEnd);
+
+        JLIST<Node *> ListNotTestedNode;
+        ListNotTestedNode.push_back(NodeStart);
+        JWHILE (!ListNotTestedNode.empty() && CurrentNode != NodeEnd) {
+            ListNotTestedNode.sort([](JCONST Node *Lhs, JCONST Node *Rhs) { JRETURN Lhs->GlobalGoal < Rhs->GlobalGoal; });
+            JWHILE (!ListNotTestedNode.empty() && ListNotTestedNode.front()->Visited) ListNotTestedNode.pop_front();
+
+            JIF(ListNotTestedNode.empty()) JBREAK;
+
+            CurrentNode = ListNotTestedNode.front();
+            CurrentNode->Visited = JTRUE;
+
+            JFOR (JAUTO NodeNeighbor : CurrentNode->VectorNeighbors) {
+                JIF (!NodeNeighbor->Visited && NodeNeighbor->Obstacle == 0)
+                    ListNotTestedNode.push_back(NodeNeighbor);
+                
+                JFLOAT PossibilityLowerGoal = CurrentNode->LocalGoal + Distance(CurrentNode, NodeNeighbor);
+
+                JIF (PossibilityLowerGoal < NodeNeighbor->LocalGoal) {
+                    NodeNeighbor->Parent = CurrentNode;
+                    NodeNeighbor->LocalGoal = PossibilityLowerGoal;
+                    NodeNeighbor->GlobalGoal = NodeNeighbor->LocalGoal + Heuristic(NodeNeighbor, NodeEnd);
+                }
+            }
+        }
+    }
+
     JVOID AddEdge(JVECTOR<JDM::Edges> &VectorEdges, JDM::Cell *World, JINT Index, JINT Dir, JINT RDir, JINT CONSTANT,
         JINT XAdd, JINT YAdd, JINT BWidth, JFLOAT SX, JFLOAT SY, JFLOAT EX, JFLOAT EY) {
         JIF (!World[RDir].Exist) {
@@ -68,8 +155,6 @@ JNAMESPACE JDM{
             }
         }
     }
-
-    JCONSTEXPR JINT GetIndex(JINT x, JINT y, JINT Pitch) { JRETURN x + (y * Pitch); }
 
     JVOID SetRandomSeed() { srand(std::time(JNONE)); }
     JCONSTEXPR JBOOL collide_point(JCONST JDM::SizePosDF position, JCFLOAT x1, JCFLOAT y1) {

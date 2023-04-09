@@ -84,13 +84,26 @@ JNAMESPACE JDM {
                             window->Draw({Position.X + radius + dx - 1, Position.Y + radius + dy - 1}, Character, OutColor, AlphaR);
                     }
             }
-
-            JSTATIC JVOID DisplayEdges(JWINDOW *window, JVECTOR<JDM::Edges> VectorEdges) {
+            JSTATIC JVOID DisplayEdges(JWINDOW *window, JVECTOR<JDM::Edges> VectorEdges, JCSHORT Color1 = JDM::FG_WHITE, JCSHORT Color2 = JDM::FG_RED) {
                 JFOR (JAUTO &Edge : VectorEdges) {
-                    window->DrawLine({Edge.SX, Edge.SY, Edge.EX, Edge.EY}, PIXEL_SOLID, FG_RED, JTRUE);
-                    window->Draw({Edge.SX, Edge.SY}, PIXEL_SOLID, FG_WHITE);
-                    window->Draw({Edge.EX, Edge.EY}, PIXEL_SOLID, FG_WHITE);
+                    window->DrawLine({Edge.SX, Edge.SY, Edge.EX, Edge.EY}, PIXEL_SOLID, Color2, JTRUE);
+                    window->Draw({Edge.SX, Edge.SY}, PIXEL_SOLID, Color1);
+                    window->Draw({Edge.EX, Edge.EY}, PIXEL_SOLID, Color1);
                 }
+            }
+            JSTATIC JVOID DisplayPath(JWINDOW *window, JDM::Node *NodeEnd, JINT NodeSize) {
+                JIF (NodeEnd != nullptr) {
+                JDM::Node *P = NodeEnd;
+                JWHILE (P->Parent != nullptr) {
+                    window->DrawLine({JSTATICC<JFLOAT>(P->X * NodeSize) + NodeSize/2, JSTATICC<JFLOAT>(P->Y * NodeSize) + NodeSize/2,
+                          JSTATICC<JFLOAT>((P->Parent->X) * NodeSize) + NodeSize/2, JSTATICC<JFLOAT>((P->Parent->Y) * NodeSize) + NodeSize/2},
+                         PIXEL_SOLID, FG_YELLOW);
+                    window->DrawLine({JSTATICC<JFLOAT>(P->X * NodeSize) + NodeSize/2, JSTATICC<JFLOAT>(P->Y * NodeSize) + NodeSize/2 - 1,
+                          JSTATICC<JFLOAT>((P->Parent->X) * NodeSize) + NodeSize/2, JSTATICC<JFLOAT>((P->Parent->Y) * NodeSize) + NodeSize/2 - 1},
+                         PIXEL_SOLID, FG_YELLOW);
+                    P = P->Parent;
+                }
+            }
         }
     };
 };
