@@ -1,6 +1,7 @@
 {
     "workbench.colorTheme": "JDM",
     "files.associations": {
+        "*.jds": "jds",
         "algorithm": "cpp",
         "atomic": "cpp",
         "bit": "cpp",
@@ -76,6 +77,11 @@
         "functional": "cpp",
         "stdio.h": "c",
         "endline.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "numeric": "cpp",
+        "random": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp"
     }
 }

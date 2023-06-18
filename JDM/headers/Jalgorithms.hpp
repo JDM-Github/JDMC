@@ -1,6 +1,8 @@
 #pragma once
 #include <ctime>
 #include <fstream>
+#include <math.h>
+#include <cmath>
 #include <algorithm>
 #include "Jenums.hpp"
 
@@ -71,8 +73,8 @@ JNAMESPACE JDM{
             JFOR (JINT x = 0; x < MapWidth; x++) {
                 JINT Index = GetIndex(x, y, MapWidth);
                 Nodes[Index].Visited = JFALSE;
-                Nodes[Index].GlobalGoal = INFINITY;
-                Nodes[Index].LocalGoal = INFINITY;
+                Nodes[Index].GlobalGoal = 9999.f;
+                Nodes[Index].LocalGoal = 9999.f;
                 Nodes[Index].Parent = nullptr;
             }
         JAUTO Distance = [](Node *A, Node *B) { JRETURN sqrtf((A->X - B->X)*(A->X - B->X) + (A->Y - B->Y)*(A->Y - B->Y)); };
